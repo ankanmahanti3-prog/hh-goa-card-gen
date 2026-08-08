@@ -39,7 +39,10 @@ export default function ImageCropper({ imageSrc, onCropComplete, onCancel }: Ima
     try {
       const image = new Image();
       image.src = imageSrc;
-      await new Promise((resolve) => (image.onload = resolve));
+      await new Promise((resolve, reject) => {
+        image.onload = resolve;
+        image.onerror = reject;
+      });
 
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
@@ -60,22 +63,12 @@ export default function ImageCropper({ imageSrc, onCropComplete, onCancel }: Ima
         croppedAreaPixels.height
       );
 
-      // Async toBlob conversion instead of heavy synchronous Base64 string creation
-      const croppedBlob = await new Promise<Blob>((resolve, reject) => {
-        canvas.toBlob(
-          (blob) => {
-            if (blob) resolve(blob);
-            else reject(new Error('Crop failed'));
-          },
-          'image/jpeg',
-          0.88
-        );
-      });
-
-      const croppedUrl = URL.createObjectURL(croppedBlob);
-      onCropComplete(croppedUrl);
+      // Convert canvas to Data URL to ensure universal compatibility across step transitions
+      const croppedDataUrl = canvas.toDataURL('image/jpeg', 0.92);
+      onCropComplete(croppedDataUrl);
     } catch (err) {
       console.error('Error cropping image:', err);
+      alert('Failed to crop image. Please try again.');
     }
   };
 

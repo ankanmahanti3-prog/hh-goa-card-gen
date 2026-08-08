@@ -33,11 +33,12 @@ export default function Home() {
 
   const handleImageSelected = (dataUrl: string) => {
     setSelectedImage(dataUrl);
+    setCroppedImage(null); // Clear previous crop if re-uploading
   };
 
   const handleCropComplete = (croppedDataUrl: string) => {
     setCroppedImage(croppedDataUrl);
-    setActiveStep(2);
+    setActiveStep(2); // Automatically advance wizard to 02 DETAILS
   };
 
   const handleReset = () => {
