@@ -82,158 +82,196 @@ export default function CardCanvas({
     canvas.width = 1080;
     canvas.height = 1350;
 
-    // Background
+    // Base Background Fill
     ctx.fillStyle = selectedTheme.bg;
     ctx.fillRect(0, 0, 1080, 1350);
 
-    // Left Pattern Strip Accent
-    ctx.fillStyle = 'rgba(255, 213, 46, 0.12)';
-    for (let i = 0; i < 15; i++) {
-      ctx.fillRect(30, 80 + i * 80, 20, 40);
-    }
+    // Load Beach Sunset Background Illustration
+    const bgIllustration = new Image();
+    bgIllustration.src = '/goa-beach-illustration.png';
+    bgIllustration.onload = () => {
+      ctx.globalAlpha = 0.45;
+      ctx.drawImage(bgIllustration, 0, 650, 1080, 700);
+      ctx.globalAlpha = 1.0;
+      drawPassContent();
+    };
+    bgIllustration.onerror = () => {
+      ctx.globalAlpha = 1.0;
+      drawPassContent();
+    };
 
-    // Outer Glow Border
-    const gradient = ctx.createLinearGradient(0, 0, 1080, 1350);
-    gradient.addColorStop(0, selectedTheme.primary);
-    gradient.addColorStop(1, selectedTheme.secondary);
-    ctx.strokeStyle = gradient;
-    ctx.lineWidth = 18;
-    ctx.strokeRect(24, 24, 1032, 1302);
+    function drawPassContent() {
+      // Decorative Left Pattern Strip
+      ctx.fillStyle = 'rgba(255, 213, 46, 0.15)';
+      for (let i = 0; i < 15; i++) {
+        ctx.fillRect(30, 80 + i * 80, 20, 40);
+      }
 
-    // Title Branding
-    ctx.fillStyle = selectedTheme.primary;
-    ctx.font = '900 48px Inter, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('HACKER HOUSE GOA 2026', 540, 95);
+      // Outer Frame
+      const gradient = ctx.createLinearGradient(0, 0, 1080, 1350);
+      gradient.addColorStop(0, selectedTheme.primary);
+      gradient.addColorStop(1, selectedTheme.secondary);
+      ctx.strokeStyle = gradient;
+      ctx.lineWidth = 18;
+      ctx.strokeRect(24, 24, 1032, 1302);
 
-    // Pink Identity Pill Banner
-    ctx.fillStyle = '#ec4899';
-    ctx.beginPath();
-    if (typeof ctx.roundRect === 'function') {
-      ctx.roundRect(340, 118, 400, 44, 22);
-    } else {
-      ctx.rect(340, 118, 400, 44);
-    }
-    ctx.fill();
+      // Draw Official Hacker House Title Typography Header
+      const logoImg = new Image();
+      logoImg.src = '/hacker-house-logo.png';
+      logoImg.onload = () => {
+        ctx.drawImage(logoImg, 140, 50, 680, 100);
+      };
 
-    ctx.fillStyle = '#ffffff';
-    ctx.font = '900 20px Inter, sans-serif';
-    ctx.fillText('OFFICIAL BUILDER PASS', 540, 146);
+      // Draw Official Hindi "गोवा" Sticker Badge (Top Right)
+      const goaBadge = new Image();
+      goaBadge.src = '/goa-hindi-badge.png';
+      goaBadge.onload = () => {
+        ctx.drawImage(goaBadge, 860, 40, 140, 140);
+      };
 
-    // Photo Box Specifications
-    const photoSize = 440;
-    const photoX = (1080 - photoSize) / 2;
-    const photoY = 185;
-
-    const drawTextAndDetails = () => {
-      // Name
-      const displayName = name.trim().length > 22 ? `${name.trim().substring(0, 20)}...` : name.trim() || 'ANKAN MAHANTI';
-      ctx.fillStyle = '#ffffff';
-      ctx.font = '900 58px Inter, sans-serif';
-      ctx.fillText(displayName.toUpperCase(), 540, 710);
-
-      // Handle
-      ctx.fillStyle = selectedTheme.primary;
-      ctx.font = '600 28px Inter, sans-serif';
-      ctx.fillText(handle.trim() || '@ankanmahanti', 540, 755);
-
-      // Hot Pink Builder Title Badge Box
+      // "OFFICIAL BUILDER PASS" Pink Ribbon
       ctx.fillStyle = '#ec4899';
       ctx.beginPath();
       if (typeof ctx.roundRect === 'function') {
-        ctx.roundRect(240, 785, 600, 64, 18);
+        ctx.roundRect(340, 165, 400, 44, 22);
       } else {
-        ctx.rect(240, 785, 600, 64);
+        ctx.rect(340, 165, 400, 44);
       }
       ctx.fill();
 
       ctx.fillStyle = '#ffffff';
-      ctx.font = '900 28px Inter, sans-serif';
-      ctx.fillText(title.toUpperCase(), 540, 828);
-
-      // Role & Location Stack Details
-      ctx.fillStyle = '#FFD52E';
-      ctx.font = 'bold 24px Inter, sans-serif';
-      ctx.textAlign = 'left';
-      ctx.fillText('ROLE', 100, 930);
-      ctx.fillStyle = '#ffffff';
-      ctx.fillText((role.trim() || 'Student / Builder').toUpperCase(), 100, 965);
-
-      ctx.fillStyle = '#FFD52E';
-      ctx.fillText('LOCATION', 100, 1020);
-      ctx.fillStyle = '#ffffff';
-      ctx.fillText(location.toUpperCase(), 100, 1055);
-
-      ctx.fillStyle = '#10b981';
-      ctx.fillText('BUILDER ID', 100, 1110);
-      ctx.fillStyle = '#FFD52E';
-      ctx.font = 'bold 26px monospace';
-      ctx.fillText(autoId, 100, 1145);
-
-      // Draw QR Code in Right Corner
-      if (qrDataUrl) {
-        const qrImg = new Image();
-        qrImg.onload = () => {
-          ctx.drawImage(qrImg, 780, 920, 200, 200);
-          ctx.fillStyle = '#FFD52E';
-          ctx.font = 'bold 18px Inter, sans-serif';
-          ctx.textAlign = 'center';
-          ctx.fillText('SCAN TO VERIFY', 880, 1150);
-        };
-        qrImg.src = qrDataUrl;
-      }
-
-      // Footer Slogan
-      ctx.fillStyle = '#94a3b8';
-      ctx.font = '20px Inter, sans-serif';
+      ctx.font = '900 20px Inter, sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('GOA, INDIA • 28 — 31 OCT 2026 • #FrameInGoa', 540, 1220);
-      ctx.fillText('LESS NOISE. MORE SIGNAL.', 540, 1255);
-    };
+      ctx.fillText('OFFICIAL BUILDER PASS', 540, 193);
 
-    if (userImage) {
-      const img = new Image();
-      img.onload = () => {
-        ctx.save();
+      // Photo Frame Specs
+      const photoSize = 420;
+      const photoX = (1080 - photoSize) / 2;
+      const photoY = 225;
+
+      const drawDetails = () => {
+        // Name
+        const displayName = name.trim().length > 22 ? `${name.trim().substring(0, 20)}...` : name.trim() || 'ANKAN MAHANTI';
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '900 58px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(displayName.toUpperCase(), 540, 705);
+
+        // Twitter Handle
+        ctx.fillStyle = selectedTheme.primary;
+        ctx.font = '600 28px Inter, sans-serif';
+        ctx.fillText(handle.trim() || '@ankanmahanti', 540, 750);
+
+        // Builder Title Hot-Pink Badge
+        ctx.fillStyle = '#ec4899';
         ctx.beginPath();
         if (typeof ctx.roundRect === 'function') {
-          ctx.roundRect(photoX, photoY, photoSize, photoSize, 28);
+          ctx.roundRect(240, 780, 600, 64, 18);
         } else {
-          ctx.rect(photoX, photoY, photoSize, photoSize);
+          ctx.rect(240, 780, 600, 64);
         }
-        ctx.clip();
-        ctx.drawImage(img, photoX, photoY, photoSize, photoSize);
-        ctx.restore();
+        ctx.fill();
 
-        ctx.strokeStyle = selectedTheme.primary;
-        ctx.lineWidth = 6;
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '900 28px Inter, sans-serif';
+        ctx.fillText(title.toUpperCase(), 540, 823);
+
+        // Role & Details Dark Glass Panel
+        ctx.fillStyle = 'rgba(2, 24, 18, 0.92)';
         ctx.beginPath();
         if (typeof ctx.roundRect === 'function') {
-          ctx.roundRect(photoX, photoY, photoSize, photoSize, 28);
+          ctx.roundRect(70, 870, 940, 310, 24);
         } else {
-          ctx.rect(photoX, photoY, photoSize, photoSize);
+          ctx.rect(70, 870, 940, 310);
         }
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(251, 191, 36, 0.4)';
+        ctx.lineWidth = 3;
         ctx.stroke();
 
-        drawTextAndDetails();
-      };
-      img.onerror = () => {
-        drawTextAndDetails();
-      };
-      img.src = userImage;
-    } else {
-      ctx.fillStyle = 'rgba(6, 44, 32, 0.6)';
-      ctx.fillRect(photoX, photoY, photoSize, photoSize);
-      ctx.strokeStyle = selectedTheme.primary;
-      ctx.lineWidth = 4;
-      ctx.strokeRect(photoX, photoY, photoSize, photoSize);
+        ctx.fillStyle = '#FFD52E';
+        ctx.font = 'bold 24px Inter, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText('ROLE', 100, 915);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText((role.trim() || 'Student / Builder').toUpperCase(), 100, 950);
 
-      ctx.fillStyle = '#94a3b8';
-      ctx.font = '600 24px Inter, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('PHOTO REQUIRED', 540, photoY + photoSize / 2);
+        ctx.fillStyle = '#FFD52E';
+        ctx.fillText('LOCATION', 100, 1005);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText(location.toUpperCase(), 100, 1040);
 
-      drawTextAndDetails();
+        ctx.fillStyle = '#10b981';
+        ctx.fillText('BUILDER ID', 100, 1095);
+        ctx.fillStyle = '#FFD52E';
+        ctx.font = 'bold 26px monospace';
+        ctx.fillText(autoId, 100, 1130);
+
+        // Draw Scannable QR Code
+        if (qrDataUrl) {
+          const qrImg = new Image();
+          qrImg.onload = () => {
+            ctx.drawImage(qrImg, 780, 900, 200, 200);
+            ctx.fillStyle = '#FFD52E';
+            ctx.font = 'bold 18px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('SCAN TO VERIFY', 880, 1130);
+          };
+          qrImg.src = qrDataUrl;
+        }
+
+        // Footer Text
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '20px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('GOA, INDIA • 28 — 31 OCT 2026 • #FrameInGoa', 540, 1225);
+        ctx.fillText('LESS NOISE. MORE SIGNAL.', 540, 1255);
+      };
+
+      if (userImage) {
+        const img = new Image();
+        img.onload = () => {
+          ctx.save();
+          ctx.beginPath();
+          if (typeof ctx.roundRect === 'function') {
+            ctx.roundRect(photoX, photoY, photoSize, photoSize, 28);
+          } else {
+            ctx.rect(photoX, photoY, photoSize, photoSize);
+          }
+          ctx.clip();
+          ctx.drawImage(img, photoX, photoY, photoSize, photoSize);
+          ctx.restore();
+
+          ctx.strokeStyle = selectedTheme.primary;
+          ctx.lineWidth = 6;
+          ctx.beginPath();
+          if (typeof ctx.roundRect === 'function') {
+            ctx.roundRect(photoX, photoY, photoSize, photoSize, 28);
+          } else {
+            ctx.rect(photoX, photoY, photoSize, photoSize);
+          }
+          ctx.stroke();
+
+          drawDetails();
+        };
+        img.onerror = () => {
+          drawDetails();
+        };
+        img.src = userImage;
+      } else {
+        ctx.fillStyle = 'rgba(6, 44, 32, 0.8)';
+        ctx.fillRect(photoX, photoY, photoSize, photoSize);
+        ctx.strokeStyle = selectedTheme.primary;
+        ctx.lineWidth = 4;
+        ctx.strokeRect(photoX, photoY, photoSize, photoSize);
+
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '600 24px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('PHOTO REQUIRED', 540, photoY + photoSize / 2);
+
+        drawDetails();
+      }
     }
   }, [userImage, selectedTheme, name, role, location, handle, title, autoId, qrDataUrl]);
 
@@ -294,7 +332,7 @@ export default function CardCanvas({
         </div>
       )}
 
-      {/* Left Form Controls Panel */}
+      {/* Left Control Panel */}
       <div className="lg:col-span-5 space-y-4">
         {activeStep === 1 && (
           <div className="bg-[#03291e]/90 border border-emerald-800 p-6 rounded-2xl shadow-xl">
