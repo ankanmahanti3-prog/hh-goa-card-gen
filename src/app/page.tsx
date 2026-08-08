@@ -14,7 +14,11 @@ export default function Home() {
 
   const handleImageSelected = (dataUrl: string) => {
     setSelectedImage(dataUrl);
-    setActiveStep(1); // remain on crop step
+  };
+
+  const handleCropComplete = (croppedDataUrl: string) => {
+    setCroppedImage(croppedDataUrl);
+    setActiveStep(2); // Automatically advance to 02 DETAILS
   };
 
   const handleReset = () => {
@@ -90,12 +94,7 @@ export default function Home() {
                   </h3>
                   <ImageCropper
                     imageSrc={selectedImage}
-                    onCropComplete={(data: any) => {
-                      if (typeof data === 'string') {
-                        setCroppedImage(data);
-                        setActiveStep(2); // Auto advance to details
-                      }
-                    }}
+                    onCropComplete={handleCropComplete}
                     onCancel={handleReset}
                   />
                 </div>
@@ -108,7 +107,7 @@ export default function Home() {
                     onClick={handleReset}
                     className="text-xs text-amber-400 underline font-semibold"
                   >
-                    Re-upload
+                    Re-upload Photo
                   </button>
                 </div>
               )}
