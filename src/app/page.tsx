@@ -69,13 +69,18 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen relative bg-[#011710] text-slate-100 flex flex-col items-center justify-start font-mono selection:bg-amber-400 selection:text-slate-950 overflow-x-hidden">
-      {/* Animated Fullscreen Beach Setup Backdrop */}
+    <main className="min-h-screen relative bg-[#01140f] text-slate-100 flex flex-col items-center justify-start font-mono selection:bg-amber-400 selection:text-slate-950 overflow-x-hidden">
+      {/* 1. Ambient Background Glow Orbs (Subtle Depth) */}
+      <div className="fixed top-1/4 -left-32 w-96 h-96 bg-emerald-500/10 rounded-full blur-[140px] pointer-events-none z-0 animate-[pulse_6s_ease-in-out_infinite]" />
+      <div className="fixed top-1/3 -right-32 w-96 h-96 bg-amber-500/10 rounded-full blur-[140px] pointer-events-none z-0 animate-[pulse_8s_ease-in-out_infinite]" />
+      <div className="fixed -bottom-20 left-1/2 -translate-x-1/2 w-[600px] h-96 bg-emerald-600/10 rounded-full blur-[160px] pointer-events-none z-0" />
+
+      {/* 2. Low-Opacity Repeating Beach Setup Pattern (Outer Margins) */}
       <div 
-        className="fixed inset-0 pointer-events-none opacity-25 bg-cover bg-center mix-blend-screen scale-105 animate-[pulse_8s_ease-in-out_infinite] z-0"
-        style={{ backgroundImage: "url('/hacker-setup-bg.png')" }}
+        className="fixed inset-0 pointer-events-none opacity-10 bg-repeat bg-center mix-blend-screen z-0"
+        style={{ backgroundImage: "url('/goa-beach-illustration.png')", backgroundSize: '600px' }}
       />
-      <div className="fixed inset-0 pointer-events-none bg-gradient-to-b from-[#01120d]/80 via-transparent to-[#01120d]/90 z-0" />
+      <div className="fixed inset-0 pointer-events-none bg-gradient-to-b from-[#01140f]/90 via-[#01140f]/75 to-[#01140f]/95 z-0" />
 
       {/* Verification Overlay Modal */}
       {verifyData && (
@@ -112,7 +117,7 @@ export default function Home() {
       )}
 
       {/* Official Graphical Header Banner */}
-      <div className="relative z-10 w-full bg-[#01120d]/85 backdrop-blur-md border-b border-emerald-900/60 px-4 py-5 text-center">
+      <div className="relative z-10 w-full bg-[#01120d]/90 backdrop-blur-md border-b border-emerald-900/60 px-4 py-5 text-center shadow-lg">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           
           {/* Logo & Subheading Banner */}
@@ -235,24 +240,32 @@ export default function Home() {
         />
       </div>
 
-      {/* Trust Badges Footer */}
-      <footer className="relative z-10 w-full max-w-6xl mx-auto px-4 py-8 border-t border-emerald-900/60 mt-8 text-xs text-emerald-400/70">
+      {/* Trust Badges & Artwork Footer */}
+      <footer className="relative z-10 w-full max-w-6xl mx-auto px-4 py-8 border-t border-emerald-900/60 mt-8 text-xs text-emerald-400/70 space-y-6">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-          <div className="p-3 bg-[#011710]/90 backdrop-blur-md rounded-xl border border-emerald-900">
+          <div className="p-3 bg-[#011710]/90 backdrop-blur-md rounded-xl border border-emerald-900 shadow-lg">
             <div className="font-bold text-white mb-0.5">🛡️ VERIFIABLE</div>
             <div>Unique ID + QR Link</div>
           </div>
-          <div className="p-3 bg-[#011710]/90 backdrop-blur-md rounded-xl border border-emerald-900">
+          <div className="p-3 bg-[#011710]/90 backdrop-blur-md rounded-xl border border-emerald-900 shadow-lg">
             <div className="font-bold text-white mb-0.5">🔒 100% LOCAL</div>
             <div>Browser-only processing</div>
           </div>
-          <div className="p-3 bg-[#011710]/90 backdrop-blur-md rounded-xl border border-emerald-900">
+          <div className="p-3 bg-[#011710]/90 backdrop-blur-md rounded-xl border border-emerald-900 shadow-lg">
             <div className="font-bold text-white mb-0.5">⚡ FAST ENGINE</div>
             <div>High-res 1080×1350 canvas</div>
           </div>
-          <div className="p-3 bg-[#011710]/90 backdrop-blur-md rounded-xl border border-emerald-900">
+          <div className="p-3 bg-[#011710]/90 backdrop-blur-md rounded-xl border border-emerald-900 shadow-lg">
             <div className="font-bold text-white mb-0.5">🌴 GOA 2026</div>
             <div>Ship From Paradise</div>
+          </div>
+        </div>
+
+        {/* Bottom Stylized Banner Sign */}
+        <div className="flex flex-col sm:flex-row items-center justify-between text-[11px] text-emerald-300/60 border-t border-emerald-900/40 pt-4">
+          <div>© 2026 Hacker House Goa. All rights reserved.</div>
+          <div className="flex items-center gap-2 mt-2 sm:mt-0 font-bold text-amber-400">
+            <span>Design • Build • Ship from Paradise 🌴</span>
           </div>
         </div>
       </footer>
