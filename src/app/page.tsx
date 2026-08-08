@@ -154,17 +154,17 @@ export default function Home() {
 
           {/* Right Header Badges */}
           <div className="flex items-center gap-4">
-            {/* Refined Live Doodle Clock Badge */}
-            <div className="hidden sm:flex flex-col items-center justify-center bg-[#01120d] px-3 py-1 rounded-xl border border-amber-400/30 leading-none">
+            {/* Tilted Sticker Style Live Clock */}
+            <div className="hidden sm:flex flex-col items-center justify-center bg-black/80 px-3.5 py-1 rounded-lg border border-[#FFD52E]/40 transform -rotate-3 shadow-[3px_3px_0px_rgba(0,0,0,0.8)] leading-none">
               <span 
                 style={{ fontFamily: "'Caveat Brush', cursive" }} 
-                className="text-2xl text-[#FFD52E] tracking-wide"
+                className="text-2xl text-[#FFD52E] tracking-wide drop-shadow-[1px_1px_0px_rgba(0,0,0,0.8)]"
               >
-                {currentTime || '10:15 PM'}
+                {currentTime || '10:35 PM'}
               </span>
               <span 
                 style={{ fontFamily: "'Caveat Brush', cursive" }}
-                className="text-[11px] text-[#FFD52E] tracking-widest uppercase -mt-0.5"
+                className="text-[11px] text-[#FFD52E] tracking-widest uppercase -mt-0.5 drop-shadow-[1px_1px_0px_rgba(0,0,0,0.8)]"
               >
                 STUDIO TIME
               </span>
