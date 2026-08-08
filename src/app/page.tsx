@@ -10,22 +10,18 @@ export default function Home() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [croppedImage, setCroppedImage] = useState<string | null>(null);
   const [verifyData, setVerifyData] = useState<{ id: string; name: string; role: string } | null>(null);
-  const [currentTimeDigits, setCurrentTimeDigits] = useState<string>('');
-  const [currentAmpm, setCurrentAmpm] = useState<string>('PM');
+  const [currentTime, setCurrentTime] = useState<string>('');
 
-  // Live Clock Engine separating Digits and AM/PM
+  // Live Clock Engine
   useEffect(() => {
     const updateClock = () => {
       const now = new Date();
-      let hours = now.getHours();
-      const minutes = now.getMinutes().toString().padStart(2, '0');
-      const ampm = hours >= 12 ? 'PM' : 'AM';
-      
-      hours = hours % 12;
-      hours = hours ? hours : 12; // '0' becomes '12'
-
-      setCurrentTimeDigits(`${hours}:${minutes}`);
-      setCurrentAmpm(ampm);
+      const formatted = now.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+      });
+      setCurrentTime(formatted);
     };
 
     updateClock();
@@ -159,29 +155,20 @@ export default function Home() {
           {/* Right Header Badges */}
           <div className="flex items-center gap-4">
             
-            {/* Hybrid Mask & Overlay Clock Badge */}
-            <div className="relative hidden sm:block w-[110px] h-[55px] select-none">
-              {/* Original Official Vector Graphic Base */}
-              <img 
-                src="/studio-time-stamp.png" 
-                alt="Studio Time" 
-                className="w-full h-full object-contain pointer-events-none" 
-              />
-
-              {/* Black Patch Mask Covering the Static '2:47' */}
-              <div className="absolute top-[2%] left-[0%] w-[68%] h-[52%] bg-black z-10" />
-
-              {/* Live Ticking Time Overlay */}
-              <div 
-                className="absolute top-[-4%] left-[0%] w-[68%] h-[52%] z-20 flex items-center justify-center"
+            {/* Pure CSS Chunky Live Doodle Clock Badge */}
+            <div className="hidden sm:flex flex-col items-center justify-center leading-none px-2 select-none">
+              <span 
+                style={{ fontFamily: "'Kalam', cursive" }} 
+                className="text-2xl sm:text-[26px] font-bold text-[#FFD52E] tracking-tight leading-none"
               >
-                <span 
-                  style={{ fontFamily: "'Caveat Brush', cursive" }}
-                  className="text-[#FFD52E] text-[26px] font-bold leading-none tracking-tight"
-                >
-                  {currentTimeDigits || '10:42'}
-                </span>
-              </div>
+                {currentTime || '10:46 PM'}
+              </span>
+              <span 
+                style={{ fontFamily: "'Kalam', cursive" }}
+                className="text-[13px] font-bold text-[#FFD52E] tracking-widest uppercase -mt-0.5"
+              >
+                STUDIO
+              </span>
             </div>
 
             <div className="flex items-center gap-3 text-xs font-bold text-amber-300 bg-emerald-950/90 px-4 py-2.5 rounded-xl border border-emerald-800/80 shadow-lg">
