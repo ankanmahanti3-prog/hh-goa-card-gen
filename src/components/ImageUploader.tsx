@@ -49,7 +49,7 @@ export default function ImageUploader({ onImageSelected }: ImageUploaderProps) {
     } catch (err) {
       console.error('File reading error:', err);
       alert('Could not parse image file. Please upload a valid JPG, PNG, or HEIC photo.');
-    } font-bold {
+    } finally {
       setIsProcessing(false);
       setStatusText(null);
     }
