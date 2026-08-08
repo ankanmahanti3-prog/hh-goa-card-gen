@@ -17,7 +17,7 @@ interface Area {
 
 interface ImageCropperProps {
   imageSrc: string;
-  onCropComplete: (croppedDataUrl: string) => void;
+  onCropComplete: (croppedUrl: string) => void;
   onCancel: () => void;
 }
 
@@ -52,8 +52,10 @@ export default function ImageCropper({ imageSrc, onCropComplete, onCancel }: Ima
       const ctx = canvas.getContext('2d');
       if (!ctx) throw new Error('Could not get canvas context');
 
-      canvas.width = Math.max(1, croppedAreaPixels.width);
-      canvas.height = Math.max(1, croppedAreaPixels.height);
+      // Cap maximum crop resolution to 720x720 to preserve memory
+      const maxOutputDim = 720;
+      canvas.width = maxOutputDim;
+      canvas.height = maxOutputDim;
 
       ctx.drawImage(
         image,
@@ -63,15 +65,26 @@ export default function ImageCropper({ imageSrc, onCropComplete, onCancel }: Ima
         croppedAreaPixels.height,
         0,
         0,
-        croppedAreaPixels.width,
-        croppedAreaPixels.height
+        maxOutputDim,
+        maxOutputDim
       );
 
-      const croppedDataUrl = canvas.toDataURL('image/jpeg', 0.92);
-      onCropComplete(croppedDataUrl);
+      const blob = await new Promise<Blob>((resolve, reject) => {
+        canvas.toBlob(
+          (result) => {
+            if (result) resolve(result);
+            else reject(new Error('Crop failed'));
+          },
+          'image/jpeg',
+          0.88
+        );
+      });
+
+      const croppedUrl = URL.createObjectURL(blob);
+      onCropComplete(croppedUrl);
     } catch (err) {
       console.error('Error cropping image:', err);
-      onCropComplete(imageSrc); // Fallback: send source image if crop fails
+      onCropComplete(imageSrc);
     } finally {
       setIsProcessing(false);
     }

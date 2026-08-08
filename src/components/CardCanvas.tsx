@@ -1,13 +1,14 @@
 'use client';
 
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import QRCode from 'qrcode';
 
 interface CardCanvasProps {
-  userImage: string;
+  userImage: string | null;
   activeStep: number;
   setActiveStep: (step: number) => void;
   renderUploadSlot: React.ReactNode;
+  canAccessStep: (step: number) => boolean;
 }
 
 const THEMES = [
@@ -21,12 +22,14 @@ export default function CardCanvas({
   activeStep,
   setActiveStep,
   renderUploadSlot,
+  canAccessStep,
 }: CardCanvasProps) {
   const [selectedTheme, setSelectedTheme] = useState(THEMES[0]);
   const [name, setName] = useState('Ankan Mahanti');
   const [role, setRole] = useState('Student / Builder');
   const [handle, setHandle] = useState('@ankanmahanti');
   const [autoId, setAutoId] = useState('HHG26-ANK-8F3A');
+  const [qrDataUrl, setQrDataUrl] = useState<string>('');
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [validationError, setValidationError] = useState('');
 
@@ -38,137 +41,173 @@ export default function CardCanvas({
     setAutoId(`HHG26-${prefix}-${randomHex}`);
   };
 
+  // Separate QR code generation from canvas rendering
   useEffect(() => {
+    let cancelled = false;
+    const generateQR = async () => {
+      try {
+        const verifyUrl = `${window.location.origin}?verify=${autoId}&name=${encodeURIComponent(name)}&role=${encodeURIComponent(role)}`;
+        const qr = await QRCode.toDataURL(verifyUrl, { margin: 1, width: 170 });
+        if (!cancelled) setQrDataUrl(qr);
+      } catch {
+        if (!cancelled) setQrDataUrl('');
+      }
+    };
+    generateQR();
+    return () => {
+      cancelled = true;
+    };
+  }, [autoId, name, role]);
+
+  // Main canvas render function
+  const renderCard = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.src = userImage;
+    canvas.width = 1080;
+    canvas.height = 1350;
 
-    img.onload = async () => {
-      // High-Res Render Canvas (1080 x 1350)
-      canvas.width = 1080;
-      canvas.height = 1350;
+    // Background
+    ctx.fillStyle = selectedTheme.bg;
+    ctx.fillRect(0, 0, 1080, 1350);
 
-      // Deep Background
-      ctx.fillStyle = selectedTheme.bg;
-      ctx.fillRect(0, 0, 1080, 1350);
+    // Geometry Accent
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+    ctx.lineWidth = 4;
+    for (let i = 0; i < 5; i++) {
+      ctx.beginPath();
+      ctx.arc(950, 100, 100 + i * 40, 0, Math.PI * 2);
+      ctx.stroke();
+    }
 
-      // Subtle Decorative Goa Coastline Waves
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
-      ctx.lineWidth = 4;
-      for (let i = 0; i < 5; i++) {
+    // Outer Border
+    const gradient = ctx.createLinearGradient(0, 0, 1080, 1350);
+    gradient.addColorStop(0, selectedTheme.primary);
+    gradient.addColorStop(1, selectedTheme.secondary);
+    ctx.strokeStyle = gradient;
+    ctx.lineWidth = 18;
+    ctx.strokeRect(24, 24, 1032, 1302);
+
+    // Header Branding
+    ctx.fillStyle = selectedTheme.primary;
+    ctx.font = '900 46px Inter, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('HH GOA 2026', 540, 95);
+
+    ctx.fillStyle = '#fbbf24';
+    ctx.font = 'bold 22px Inter, sans-serif';
+    ctx.fillText('BUILDER PASS', 540, 138);
+
+    // Photo Box
+    const photoSize = 460;
+    const photoX = (1080 - photoSize) / 2;
+    const photoY = 175;
+
+    if (userImage) {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.src = userImage;
+      img.onload = () => {
+        ctx.save();
         ctx.beginPath();
-        ctx.arc(950, 100, 100 + i * 40, 0, Math.PI * 2);
+        if (typeof ctx.roundRect === 'function') {
+          ctx.roundRect(photoX, photoY, photoSize, photoSize, 28);
+        } else {
+          ctx.rect(photoX, photoY, photoSize, photoSize);
+        }
+        ctx.clip();
+        ctx.drawImage(img, photoX, photoY, photoSize, photoSize);
+        ctx.restore();
+
+        // Photo Border Accent
+        ctx.strokeStyle = selectedTheme.primary;
+        ctx.lineWidth = 6;
+        ctx.beginPath();
+        if (typeof ctx.roundRect === 'function') {
+          ctx.roundRect(photoX, photoY, photoSize, photoSize, 28);
+        } else {
+          ctx.rect(photoX, photoY, photoSize, photoSize);
+        }
         ctx.stroke();
-      }
-
-      // Outer Glow Border
-      const gradient = ctx.createLinearGradient(0, 0, 1080, 1350);
-      gradient.addColorStop(0, selectedTheme.primary);
-      gradient.addColorStop(1, selectedTheme.secondary);
-      ctx.strokeStyle = gradient;
-      ctx.lineWidth = 18;
-      ctx.strokeRect(24, 24, 1032, 1302);
-
-      // Event Branding Header
-      ctx.fillStyle = selectedTheme.primary;
-      ctx.font = '900 46px Inter, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('🌴 HACKER HOUSE GOA 2026 🌴', 540, 95);
-
-      ctx.fillStyle = '#fbbf24';
-      ctx.font = 'bold 22px Inter, sans-serif';
-      ctx.fillText('OFFICIAL DIGITAL BUILDER PASS', 540, 138);
-
-      // Photo Frame & Clipping
-      const photoSize = 460;
-      const photoX = (1080 - photoSize) / 2;
-      const photoY = 175;
-
-      ctx.save();
-      ctx.beginPath();
-      if (typeof ctx.roundRect === 'function') {
-        ctx.roundRect(photoX, photoY, photoSize, photoSize, 28);
-      } else {
-        ctx.rect(photoX, photoY, photoSize, photoSize);
-      }
-      ctx.clip();
-      ctx.drawImage(img, photoX, photoY, photoSize, photoSize);
-      ctx.restore();
-
-      // Photo Border Accent
+      };
+    } else {
+      // Empty-State Placeholder Frame
+      ctx.fillStyle = 'rgba(6, 44, 32, 0.6)';
+      ctx.fillRect(photoX, photoY, photoSize, photoSize);
       ctx.strokeStyle = selectedTheme.primary;
-      ctx.lineWidth = 6;
-      ctx.beginPath();
-      if (typeof ctx.roundRect === 'function') {
-        ctx.roundRect(photoX, photoY, photoSize, photoSize, 28);
-      } else {
-        ctx.rect(photoX, photoY, photoSize, photoSize);
-      }
-      ctx.stroke();
-
-      // Builder Name (Dominant Typography)
-      const displayName = name.trim().length > 22 ? `${name.trim().substring(0, 20)}...` : name.trim() || 'Ankan Mahanti';
-      ctx.fillStyle = '#ffffff';
-      ctx.font = '900 58px Inter, sans-serif';
-      ctx.fillText(displayName, 540, 715);
-
-      // Twitter / X Handle
-      ctx.fillStyle = selectedTheme.primary;
-      ctx.font = '600 28px Inter, sans-serif';
-      ctx.fillText(handle.trim() || '@builder', 540, 760);
-
-      // Role Pill Box
-      ctx.fillStyle = 'rgba(6, 44, 32, 0.95)';
-      ctx.beginPath();
-      if (typeof ctx.roundRect === 'function') {
-        ctx.roundRect(190, 800, 700, 68, 16);
-      } else {
-        ctx.rect(190, 800, 700, 68);
-      }
-      ctx.fill();
-      ctx.strokeStyle = 'rgba(251, 191, 36, 0.4)';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-
-      ctx.fillStyle = '#fbbf24';
-      ctx.font = 'bold 28px Inter, sans-serif';
-      ctx.fillText(`⚡ ${role.trim() || 'Builder'}`, 540, 844);
-
-      // Dynamic QR Code Rendering for Live Verification Engine
-      const verifyUrl = `${window.location.origin}?verify=${autoId}&name=${encodeURIComponent(name)}&role=${encodeURIComponent(role)}`;
-      try {
-        const qrDataUrl = await QRCode.toDataURL(verifyUrl, { margin: 1, width: 170 });
-        const qrImg = new Image();
-        qrImg.src = qrDataUrl;
-        await new Promise((resolve) => (qrImg.onload = resolve));
-        ctx.drawImage(qrImg, 455, 915, 170, 170);
-      } catch {
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(455, 915, 170, 170);
-      }
-
-      // Credential Metadata Footer
-      ctx.fillStyle = '#10b981';
-      ctx.font = 'bold 26px Inter, sans-serif';
-      ctx.fillText(`BUILDER ID: ${autoId}`, 540, 1140);
+      ctx.lineWidth = 4;
+      ctx.strokeRect(photoX, photoY, photoSize, photoSize);
 
       ctx.fillStyle = '#94a3b8';
-      ctx.font = '20px Inter, sans-serif';
-      ctx.fillText('SCAN TO VERIFY', 540, 1180);
-      ctx.fillText('#FrameInGoa • LESS NOISE. MORE SIGNAL.', 540, 1220);
-    };
-  // Note: Removed `handle` from dependencies to eliminate unnecessary redraws when typing handles
-  }, [userImage, selectedTheme, name, role, autoId]);
+      ctx.font = '600 24px Inter, sans-serif';
+      ctx.fillText('YOUR PHOTO WILL APPEAR HERE', 540, photoY + photoSize / 2);
+    }
 
-  // Fast memory-efficient toBlob() download handler
+    // Name Typography
+    const displayName = name.trim().length > 22 ? `${name.trim().substring(0, 20)}...` : name.trim() || 'Ankan Mahanti';
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '900 58px Inter, sans-serif';
+    ctx.fillText(displayName.toUpperCase(), 540, 715);
+
+    // Twitter Handle
+    ctx.fillStyle = selectedTheme.primary;
+    ctx.font = '600 28px Inter, sans-serif';
+    ctx.fillText(handle.trim() || '@builder', 540, 760);
+
+    // Role Box
+    ctx.fillStyle = 'rgba(6, 44, 32, 0.95)';
+    ctx.beginPath();
+    if (typeof ctx.roundRect === 'function') {
+      ctx.roundRect(190, 800, 700, 68, 16);
+    } else {
+      ctx.rect(190, 800, 700, 68);
+    }
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(251, 191, 36, 0.4)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ctx.fillStyle = '#fbbf24';
+    ctx.font = 'bold 28px Inter, sans-serif';
+    ctx.fillText((role.trim() || 'BUILDER').toUpperCase(), 540, 844);
+
+    // Draw Pre-rendered QR Code
+    if (qrDataUrl) {
+      const qrImg = new Image();
+      qrImg.onload = () => {
+        ctx.drawImage(qrImg, 455, 915, 170, 170);
+      };
+      qrImg.src = qrDataUrl;
+    }
+
+    // Pass Footer Details
+    ctx.fillStyle = '#10b981';
+    ctx.font = 'bold 26px Inter, sans-serif';
+    ctx.fillText(autoId, 540, 1140);
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '20px Inter, sans-serif';
+    ctx.fillText('SCAN TO VERIFY', 540, 1180);
+    ctx.fillText('LESS NOISE. MORE SIGNAL.', 540, 1220);
+  }, [userImage, selectedTheme, name, role, handle, autoId, qrDataUrl]);
+
+  // Debounced canvas rendering (150ms timeout to avoid stutter during typing)
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      renderCard();
+    }, 150);
+    return () => window.clearTimeout(timer);
+  }, [renderCard]);
+
   const handleDownload = () => {
     if (!name.trim()) {
       setValidationError('Please enter your full name before downloading.');
+      return;
+    }
+    if (!userImage) {
+      setValidationError('Please upload and crop a photo first.');
       return;
     }
     setValidationError('');
@@ -189,50 +228,55 @@ export default function CardCanvas({
 
   const handleShareToX = () => {
     const shareText = encodeURIComponent(
-      `Just generated my official Builder Pass for Hacker House Goa 2026! 🌴🚀\n\nGenerate yours here: https://hh-goa-card-gen-eight.vercel.app/\n\n#FrameInGoa @HackerHouseGoa`
+      `Just built my Hacker House Goa 2026 Builder Pass! 🌴🚀\n\nGenerate yours: https://hh-goa-card-gen-eight.vercel.app/\n\n#FrameInGoa @HackerHouseGoa`
     );
     window.open(`https://twitter.com/intent/tweet?text=${shareText}`, '_blank');
   };
 
   return (
     <div className="w-full">
-      {/* Verification Modal */}
+      {/* Pass Details Modal */}
       {showVerificationModal && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
           <div className="bg-emerald-950 border-2 border-emerald-500/80 p-6 rounded-2xl max-w-md w-full text-center space-y-4 shadow-2xl">
             <div className="w-12 h-12 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto text-2xl font-bold">
               ✓
             </div>
-            <h3 className="text-xl font-bold text-amber-400">CREDENTIAL VERIFIED</h3>
-            <p className="text-xs text-emerald-200">Hacker House Goa 2026 Official Builder Pass</p>
+            <h3 className="text-xl font-bold text-amber-400">PASS DETAILS</h3>
+            <p className="text-xs text-emerald-200">Hacker House Goa 2026 Pass Preview</p>
             <div className="bg-slate-900/90 p-4 rounded-xl text-left text-xs space-y-2 border border-emerald-800">
               <div><span className="text-slate-400">Name:</span> <strong className="text-white">{name}</strong></div>
               <div><span className="text-slate-400">Role:</span> <strong className="text-amber-400">{role}</strong></div>
               <div><span className="text-slate-400">Builder ID:</span> <strong className="text-emerald-400 font-mono">{autoId}</strong></div>
-              <div><span className="text-slate-400">Status:</span> <strong className="text-emerald-400">🟢 Active & Verified Attendee</strong></div>
+              <div><span className="text-slate-400">Status:</span> <strong className="text-emerald-400">🟢 Active Builder Pass</strong></div>
             </div>
             <button
               type="button"
               onClick={() => setShowVerificationModal(false)}
               className="w-full py-2.5 bg-amber-400 text-slate-950 font-bold rounded-xl text-xs hover:bg-amber-300 transition"
             >
-              Close Verification
+              Close Preview
             </button>
           </div>
         </div>
       )}
 
-      {/* Main Studio Grid */}
+      {/* Main Grid Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Left Form Controls */}
+        {/* Control Panel */}
         <div className="lg:col-span-5 space-y-4">
           {activeStep === 1 && (
             <div className="bg-emerald-950/90 border border-emerald-800 p-6 rounded-2xl shadow-xl">
               {renderUploadSlot}
               <button
                 type="button"
-                onClick={() => setActiveStep(2)}
-                className="w-full mt-4 py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold rounded-xl text-sm transition shadow-lg"
+                disabled={!userImage}
+                onClick={() => canAccessStep(2) && setActiveStep(2)}
+                className={`w-full mt-4 py-3.5 rounded-xl font-bold text-sm transition shadow-lg ${
+                  userImage
+                    ? 'bg-amber-400 text-slate-950 hover:bg-amber-300'
+                    : 'bg-emerald-900/60 text-emerald-600 cursor-not-allowed'
+                }`}
               >
                 Continue to Details →
               </button>
@@ -242,7 +286,7 @@ export default function CardCanvas({
           {activeStep === 2 && (
             <div className="bg-emerald-950/90 border border-emerald-800 p-6 rounded-2xl shadow-xl space-y-4 text-left">
               <h3 className="text-xs font-bold text-amber-400 uppercase tracking-wider">
-                Step 2: Builder Credentials
+                Step 2: Builder Details
               </h3>
 
               <div>
@@ -320,8 +364,13 @@ export default function CardCanvas({
 
               <button
                 type="button"
-                onClick={() => setActiveStep(3)}
-                className="w-full py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold rounded-xl text-sm transition shadow-lg mt-2"
+                disabled={!name.trim()}
+                onClick={() => canAccessStep(3) && setActiveStep(3)}
+                className={`w-full py-3.5 rounded-xl font-bold text-sm transition shadow-lg mt-2 ${
+                  name.trim()
+                    ? 'bg-amber-400 text-slate-950 hover:bg-amber-300'
+                    : 'bg-emerald-900/60 text-emerald-600 cursor-not-allowed'
+                }`}
               >
                 Preview Builder Pass →
               </button>
@@ -331,11 +380,11 @@ export default function CardCanvas({
           {activeStep === 3 && (
             <div className="bg-emerald-950/90 border border-emerald-800 p-6 rounded-2xl shadow-xl space-y-4 text-left">
               <h3 className="text-xs font-bold text-amber-400 uppercase tracking-wider">
-                Step 3: Preview Pass
+                Step 3: Pass Preview
               </h3>
 
               <p className="text-xs text-emerald-200/80">
-                Review your official pass on the right. You can verify the QR credential before downloading or sharing.
+                Review your generated pass on the right before exporting or sharing.
               </p>
 
               <button
@@ -343,7 +392,7 @@ export default function CardCanvas({
                 onClick={() => setShowVerificationModal(true)}
                 className="w-full py-3 bg-emerald-900/90 border border-emerald-700 text-emerald-300 font-bold rounded-xl text-xs hover:bg-emerald-800 transition"
               >
-                🔐 Verify Credential
+                🔍 Inspect Pass Details
               </button>
 
               <button
@@ -351,7 +400,7 @@ export default function CardCanvas({
                 onClick={() => setActiveStep(4)}
                 className="w-full py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold rounded-xl text-sm transition shadow-lg"
               >
-                Continue to Download & Share →
+                Continue to Export →
               </button>
 
               <button
@@ -403,14 +452,14 @@ export default function CardCanvas({
           )}
         </div>
 
-        {/* Right Column: Hero Preview Showcase */}
+        {/* Hero Card Showcase Panel */}
         <div className="lg:col-span-7 flex flex-col items-center justify-start">
           <div className="w-full max-w-md rounded-2xl overflow-hidden border-2 border-amber-400/60 shadow-[0_0_50px_rgba(251,191,36,0.15)] bg-emerald-950">
             <canvas ref={canvasRef} className="w-full h-auto block" />
           </div>
           <div className="flex items-center space-x-2 mt-3 text-xs text-emerald-300/80 font-mono">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>Verifiable Pass Engine Active</span>
+            <span>Pass Engine Active</span>
           </div>
         </div>
       </div>
