@@ -1,16 +1,16 @@
 'use client';
 
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState } from 'react';
 
 interface ImageUploaderProps {
   onImageSelected: (dataUrl: string) => void;
 }
 
-// Memory-efficient client-side image downscaler using ImageBitmap and toBlob()
-async function downscaleImage(file: File, maxDim = 1200): Promise<string> {
-  let sourceBlob: Blob = file;
+// Convert uploaded photo cleanly into a persistent Data URL with instant downscaling
+async function processAndDownscaleImage(file: File, maxDim = 1200): Promise<string> {
+  let sourceFile: Blob = file;
 
-  // Lazy HEIC conversion only if file is HEIC/HEIF
+  // Handle iPhone HEIC files lazily
   if (
     file.name.toLowerCase().endsWith('.heic') ||
     file.name.toLowerCase().endsWith('.heif') ||
@@ -21,62 +21,47 @@ async function downscaleImage(file: File, maxDim = 1200): Promise<string> {
     const converted = await heic2any({
       blob: file,
       toType: 'image/jpeg',
-      quality: 0.75,
+      quality: 0.8,
     });
-    sourceBlob = Array.isArray(converted) ? converted[0] : converted;
+    sourceFile = Array.isArray(converted) ? converted[0] : converted;
   }
 
-  // Fast decoding via ImageBitmap
-  const bitmap = await createImageBitmap(sourceBlob);
-  let width = bitmap.width;
-  let height = bitmap.height;
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > maxDim || height > maxDim) {
+          if (width > height) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          } else {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+        }
 
-  if (Math.max(width, height) > maxDim) {
-    const scale = maxDim / Math.max(width, height);
-    width = Math.round(width * scale);
-    height = Math.round(height * scale);
-  }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return resolve(e.target?.result as string);
 
-  const canvas = document.createElement('canvas');
-  canvas.width = width;
-  canvas.height = height;
-
-  const ctx = canvas.getContext('2d');
-  if (!ctx) {
-    bitmap.close();
-    throw new Error('Could not create canvas context');
-  }
-
-  ctx.drawImage(bitmap, 0, 0, width, height);
-  bitmap.close();
-
-  const blob = await new Promise<Blob>((resolve, reject) => {
-    canvas.toBlob(
-      (result) => {
-        if (result) resolve(result);
-        else reject(new Error('Could not create image blob'));
-      },
-      'image/jpeg',
-      0.82
-    );
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', 0.85));
+      };
+      img.onerror = () => reject(new Error('Failed to load image element'));
+      img.src = e.target?.result as string;
+    };
+    reader.onerror = () => reject(new Error('FileReader failed'));
+    reader.readAsDataURL(sourceFile);
   });
-
-  return URL.createObjectURL(blob);
 }
 
 export default function ImageUploader({ onImageSelected }: ImageUploaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const previousUrlRef = useRef<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-
-  // Clean up object URLs on component unmount
-  useEffect(() => {
-    return () => {
-      if (previousUrlRef.current) {
-        URL.revokeObjectURL(previousUrlRef.current);
-      }
-    };
-  }, []);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -84,17 +69,10 @@ export default function ImageUploader({ onImageSelected }: ImageUploaderProps) {
 
     try {
       setIsProcessing(true);
-      const optimizedUrl = await downscaleImage(file, 1200);
-
-      // Memory leak protection: Revoke old Object URL when uploading a new photo
-      if (previousUrlRef.current) {
-        URL.revokeObjectURL(previousUrlRef.current);
-      }
-      previousUrlRef.current = optimizedUrl;
-
-      onImageSelected(optimizedUrl);
+      const dataUrl = await processAndDownscaleImage(file, 1200);
+      onImageSelected(dataUrl);
     } catch (err) {
-      console.error(err);
+      console.error('Upload processing error:', err);
       alert('Could not decode photo. Please select a valid JPG, PNG, or HEIC file.');
     } finally {
       setIsProcessing(false);

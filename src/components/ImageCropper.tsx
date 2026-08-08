@@ -40,19 +40,18 @@ export default function ImageCropper({ imageSrc, onCropComplete, onCancel }: Ima
     try {
       setIsProcessing(true);
       const image = new Image();
-      image.crossOrigin = 'anonymous';
       image.src = imageSrc;
 
       await new Promise((resolve, reject) => {
+        if (image.complete) resolve(true);
         image.onload = resolve;
-        image.onerror = (err) => reject(err);
+        image.onerror = reject;
       });
 
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
       if (!ctx) throw new Error('Could not get canvas context');
 
-      // Set canvas size matching crop pixel dimensions
       canvas.width = Math.max(1, croppedAreaPixels.width);
       canvas.height = Math.max(1, croppedAreaPixels.height);
 
@@ -68,13 +67,11 @@ export default function ImageCropper({ imageSrc, onCropComplete, onCancel }: Ima
         croppedAreaPixels.height
       );
 
-      // Safe JPEG base64 data URL conversion
-      const croppedDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+      const croppedDataUrl = canvas.toDataURL('image/jpeg', 0.92);
       onCropComplete(croppedDataUrl);
     } catch (err) {
       console.error('Error cropping image:', err);
-      // Fallback: If drawing crop fails due to CORS or blob state, pass raw source image
-      onCropComplete(imageSrc);
+      onCropComplete(imageSrc); // Fallback: send source image if crop fails
     } finally {
       setIsProcessing(false);
     }
