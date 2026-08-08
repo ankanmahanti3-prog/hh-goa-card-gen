@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useRef, useEffect, useState } from 'react';
-import { Download, Share2, Sparkles, Code, Check } from 'lucide-react';
 
 interface CardCanvasProps {
   userImage: string;
@@ -121,7 +120,11 @@ export default function CardCanvas({ userImage }: CardCanvasProps) {
 
         ctx.save();
         ctx.beginPath();
-        ctx.roundRect(photoX, photoY, photoSize, photoSize, 24);
+        if (typeof ctx.roundRect === 'function') {
+          ctx.roundRect(photoX, photoY, photoSize, photoSize, 24);
+        } else {
+          ctx.rect(photoX, photoY, photoSize, photoSize);
+        }
         ctx.clip();
         ctx.drawImage(img, photoX, photoY, photoSize, photoSize);
         ctx.restore();
@@ -130,7 +133,11 @@ export default function CardCanvas({ userImage }: CardCanvasProps) {
         ctx.strokeStyle = selectedTheme.primary;
         ctx.lineWidth = 6;
         ctx.beginPath();
-        ctx.roundRect(photoX, photoY, photoSize, photoSize, 24);
+        if (typeof ctx.roundRect === 'function') {
+          ctx.roundRect(photoX, photoY, photoSize, photoSize, 24);
+        } else {
+          ctx.rect(photoX, photoY, photoSize, photoSize);
+        }
         ctx.stroke();
 
         // Builder Name & Handle
@@ -145,7 +152,11 @@ export default function CardCanvas({ userImage }: CardCanvasProps) {
         // Fun Title Badge Box
         ctx.fillStyle = 'rgba(30, 41, 59, 0.8)';
         ctx.beginPath();
-        ctx.roundRect(140, 825, 800, 80, 16);
+        if (typeof ctx.roundRect === 'function') {
+          ctx.roundRect(140, 825, 800, 80, 16);
+        } else {
+          ctx.rect(140, 825, 800, 80);
+        }
         ctx.fill();
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
         ctx.lineWidth = 2;
@@ -163,7 +174,11 @@ export default function CardCanvas({ userImage }: CardCanvasProps) {
           selectedStacks.forEach((stack) => {
             ctx.fillStyle = selectedTheme.primary;
             ctx.beginPath();
-            ctx.roundRect(startX - 90, 940, 180, 48, 12);
+            if (typeof ctx.roundRect === 'function') {
+              ctx.roundRect(startX - 90, 940, 180, 48, 12);
+            } else {
+              ctx.rect(startX - 90, 940, 180, 48);
+            }
             ctx.fill();
 
             ctx.fillStyle = '#090d16';
@@ -252,7 +267,7 @@ export default function CardCanvas({ userImage }: CardCanvasProps) {
                     />
                     <span>{theme.name}</span>
                   </div>
-                  {selectedTheme.id === theme.id && <Check className="w-3.5 h-3.5 text-cyan-400" />}
+                  {selectedTheme.id === theme.id && <span className="text-cyan-400 font-bold">✓</span>}
                 </button>
               ))}
             </div>
@@ -286,10 +301,9 @@ export default function CardCanvas({ userImage }: CardCanvasProps) {
               <label className="text-xs font-semibold text-slate-400">Builder Title</label>
               <button
                 onClick={randomizeTitle}
-                className="text-xs text-cyan-400 flex items-center space-x-1 hover:underline"
+                className="text-xs text-cyan-400 flex items-center space-x-1 hover:underline font-medium"
               >
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>Randomize Title</span>
+                <span>✨ Randomize Title</span>
               </button>
             </div>
             <input
@@ -336,17 +350,15 @@ export default function CardCanvas({ userImage }: CardCanvasProps) {
       <div className="flex w-full space-x-3">
         <button
           onClick={handleDownload}
-          className="flex-1 flex items-center justify-center space-x-2 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:opacity-90 text-slate-950 font-bold text-sm transition shadow-lg"
+          className="flex-1 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:opacity-90 text-slate-950 font-bold text-sm transition shadow-lg"
         >
-          <Download className="w-4 h-4" />
-          <span>Download Pass</span>
+          ⬇ Download Pass
         </button>
         <button
           onClick={handleShareToX}
-          className="flex-1 flex items-center justify-center space-x-2 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 hover:opacity-90 text-slate-950 font-bold text-sm transition shadow-lg"
+          className="flex-1 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 hover:opacity-90 text-slate-950 font-bold text-sm transition shadow-lg"
         >
-          <Share2 className="w-4 h-4" />
-          <span>Share to X</span>
+          🚀 Share to X
         </button>
       </div>
     </div>
