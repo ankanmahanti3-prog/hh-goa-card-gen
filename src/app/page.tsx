@@ -10,24 +10,6 @@ export default function Home() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [croppedImage, setCroppedImage] = useState<string | null>(null);
   const [verifyData, setVerifyData] = useState<{ id: string; name: string; role: string } | null>(null);
-  const [currentTime, setCurrentTime] = useState<string>('');
-
-  // Live Real-Time Clock Engine
-  useEffect(() => {
-    const updateClock = () => {
-      const now = new Date();
-      const formatted = now.toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: true,
-      });
-      setCurrentTime(formatted);
-    };
-
-    updateClock();
-    const interval = setInterval(updateClock, 1000);
-    return () => clearInterval(interval);
-  }, []);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -152,13 +134,10 @@ export default function Home() {
             </h1>
           </div>
 
-          {/* Live Studio Time & Event Details */}
+          {/* Right Header Badges */}
           <div className="flex items-center gap-4">
-            {/* Live Dynamic Real-Time Studio Badge */}
-            <div className="hidden sm:flex flex-col items-center justify-center bg-amber-400 text-slate-950 px-3.5 py-1.5 rounded-xl border-2 border-amber-300 font-black shadow-lg">
-              <span className="text-sm tracking-tight leading-none">{currentTime || '09:58 PM'}</span>
-              <span className="text-[9px] uppercase tracking-widest text-slate-900 font-bold mt-0.5">STUDIO TIME</span>
-            </div>
+            {/* Official Graphic Studio Time Image */}
+            <img src="/studio-time-stamp.png" alt="Studio Time" className="h-12 w-auto object-contain hidden sm:block" />
 
             <div className="flex items-center gap-3 text-xs font-bold text-amber-300 bg-emerald-950/90 px-4 py-2.5 rounded-xl border border-emerald-800/80 shadow-lg">
               <span>📍 GOA, INDIA</span>
