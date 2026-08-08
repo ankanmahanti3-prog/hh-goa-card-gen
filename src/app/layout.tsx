@@ -5,7 +5,7 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'HH Goa 2026 • Builder Pass Generator',
+  title: 'Hacker House Goa 2026 — Builder ID Card Generator',
   description: 'Create, customize, and share your official Hacker House Goa 2026 Builder Pass.',
 };
 

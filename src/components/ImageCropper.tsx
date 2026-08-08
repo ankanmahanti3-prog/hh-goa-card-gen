@@ -17,7 +17,7 @@ interface Area {
 
 interface ImageCropperProps {
   imageSrc: string;
-  onCropComplete: (croppedUrl: string) => void;
+  onCropComplete: (objectUrl: string) => void;
   onCancel: () => void;
 }
 
@@ -40,38 +40,54 @@ export default function ImageCropper({ imageSrc, onCropComplete, onCancel }: Ima
     try {
       setIsProcessing(true);
       const image = new Image();
+
+      image.onload = () => {
+        const OUTPUT_SIZE = 720;
+        const canvas = document.createElement('canvas');
+        canvas.width = OUTPUT_SIZE;
+        canvas.height = OUTPUT_SIZE;
+
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          throw new Error('Canvas context unavailable');
+        }
+
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+
+        ctx.drawImage(
+          image,
+          croppedAreaPixels.x,
+          croppedAreaPixels.y,
+          croppedAreaPixels.width,
+          croppedAreaPixels.height,
+          0,
+          0,
+          OUTPUT_SIZE,
+          OUTPUT_SIZE
+        );
+
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              onCropComplete(imageSrc);
+              return;
+            }
+            const objectUrl = URL.createObjectURL(blob);
+            onCropComplete(objectUrl);
+          },
+          'image/jpeg',
+          0.88
+        );
+      };
+
+      image.onerror = () => {
+        onCropComplete(imageSrc);
+      };
+
       image.src = imageSrc;
-
-      await new Promise((resolve, reject) => {
-        if (image.complete) resolve(true);
-        image.onload = resolve;
-        image.onerror = reject;
-      });
-
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      if (!ctx) throw new Error('Could not get canvas context');
-
-      const maxOutputDim = Math.min(720, Math.max(croppedAreaPixels.width, croppedAreaPixels.height));
-      canvas.width = maxOutputDim;
-      canvas.height = maxOutputDim;
-
-      ctx.drawImage(
-        image,
-        croppedAreaPixels.x,
-        croppedAreaPixels.y,
-        croppedAreaPixels.width,
-        croppedAreaPixels.height,
-        0,
-        0,
-        maxOutputDim,
-        maxOutputDim
-      );
-
-      const croppedDataUrl = canvas.toDataURL('image/jpeg', 0.9);
-      onCropComplete(croppedDataUrl);
-    } catch (err) {
-      console.error('Error cropping image:', err);
+    } catch (error) {
+      console.error('Crop failed:', error);
       onCropComplete(imageSrc);
     } finally {
       setIsProcessing(false);

@@ -3,61 +3,57 @@
 import React, { useRef, useState } from 'react';
 
 interface ImageUploaderProps {
-  onImageSelected: (src: string) => void;
+  onImageSelected: (objectUrl: string) => void;
+}
+
+function isHeic(file: File) {
+  const name = file.name.toLowerCase();
+  return (
+    name.endsWith('.heic') ||
+    name.endsWith('.heif') ||
+    file.type === 'image/heic' ||
+    file.type === 'image/heif'
+  );
 }
 
 export default function ImageUploader({ onImageSelected }: ImageUploaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [statusText, setStatusText] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
 
-  const processFile = async (file: File) => {
-    const fileName = file.name.toLowerCase();
-    const isHeic =
-      fileName.endsWith('.heic') ||
-      fileName.endsWith('.heif') ||
-      file.type === 'image/heic' ||
-      file.type === 'image/heif';
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Reset input value so re-uploading the same file triggers change
+    e.target.value = '';
 
     try {
-      setIsProcessing(true);
-      let targetFile: Blob = file;
-
-      if (isHeic) {
-        setStatusText('Converting iPhone HEIC Photo...');
-        const heic2any = (await import('heic2any')).default;
-        const converted = await heic2any({
-          blob: file,
-          toType: 'image/jpeg',
-          quality: 0.8,
-        });
-        targetFile = Array.isArray(converted) ? converted[0] : converted;
-      } else {
-        setStatusText('Processing Photo...');
+      // Normal JPG / PNG / WEBP = Instant Object URL (Zero FileReader/Canvas overhead)
+      if (!isHeic(file)) {
+        const objectUrl = URL.createObjectURL(file);
+        onImageSelected(objectUrl);
+        return;
       }
 
-      // Convert to persistent Data URL (immune to unmount revocation)
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const dataUrl = e.target?.result as string;
-        if (dataUrl) {
-          onImageSelected(dataUrl);
-        }
-      };
-      reader.readAsDataURL(targetFile);
-    } catch (err) {
-      console.error('File reading error:', err);
-      alert('Could not parse image file. Please upload a valid JPG, PNG, or HEIC photo.');
-    } finally {
-      setIsProcessing(false);
-      setStatusText(null);
-    }
-  };
+      // Lazy HEIC conversion for Apple devices
+      setIsProcessing(true);
+      const heic2any = (await import('heic2any')).default;
+      const converted = await heic2any({
+        blob: file,
+        toType: 'image/jpeg',
+        quality: 0.82,
+      });
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) processFile(file);
+      const jpegBlob = Array.isArray(converted) ? converted[0] : converted;
+      const objectUrl = URL.createObjectURL(jpegBlob);
+      onImageSelected(objectUrl);
+    } catch (error) {
+      console.error('Image processing failed:', error);
+      alert('Could not process this photo. Please try JPG, PNG, or HEIC.');
+    } font-bold {
+      setIsProcessing(false);
+    }
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -73,7 +69,12 @@ export default function ImageUploader({ onImageSelected }: ImageUploaderProps) {
     e.preventDefault();
     setIsDragging(false);
     const file = e.dataTransfer.files?.[0];
-    if (file) processFile(file);
+    if (file) {
+      const syntheticEvent = {
+        target: { files: [file], value: '' },
+      } as unknown as React.ChangeEvent<HTMLInputElement>;
+      handleFileChange(syntheticEvent);
+    }
   };
 
   return (
@@ -81,10 +82,11 @@ export default function ImageUploader({ onImageSelected }: ImageUploaderProps) {
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
+        hidden
+        accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.jpg,.jpeg,.png,.heic,.heif"
         onChange={handleFileChange}
-        className="hidden"
       />
+
       <button
         type="button"
         disabled={isProcessing}
@@ -92,21 +94,19 @@ export default function ImageUploader({ onImageSelected }: ImageUploaderProps) {
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        className={`w-full border-2 border-dashed p-8 rounded-2xl flex flex-col items-center justify-center transition cursor-pointer ${
-          isDragging
-            ? 'border-amber-400 bg-amber-400/10 scale-[1.01]'
-            : 'border-emerald-700/80 hover:border-amber-400 bg-emerald-950/40'
+        className={`w-full min-h-[180px] rounded-2xl border-2 border-dashed bg-emerald-950/60 hover:border-amber-400 hover:bg-emerald-900/60 transition-all flex flex-col items-center justify-center gap-3 text-center px-6 cursor-pointer ${
+          isDragging ? 'border-amber-400 bg-amber-400/10 scale-[1.01]' : 'border-emerald-700'
         }`}
       >
-        <div className="w-12 h-12 rounded-full bg-emerald-900/60 border border-emerald-700 flex items-center justify-center text-amber-400 mb-3">
-          {isProcessing ? '⚡' : '📷'}
+        <div className="text-4xl">{isProcessing ? '⚡' : '↑'}</div>
+        <div>
+          <div className="text-base font-bold text-white">
+            {isProcessing ? 'Preparing HEIC…' : 'Drop photo or tap to upload'}
+          </div>
+          <div className="mt-2 text-xs text-emerald-300/70">
+            JPG / PNG / WEBP / HEIC / HEIF
+          </div>
         </div>
-        <p className="text-sm font-bold text-slate-100">
-          {statusText || 'Drop your photo here or tap to browse'}
-        </p>
-        <p className="text-xs text-emerald-300/70 mt-1">
-          Supports JPG, PNG, WEBP, and HEIC
-        </p>
       </button>
     </div>
   );

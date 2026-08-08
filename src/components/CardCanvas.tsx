@@ -12,9 +12,9 @@ interface CardCanvasProps {
 }
 
 const THEMES = [
-  { id: 'emerald', name: 'Emerald Palms', primary: '#10b981', secondary: '#f59e0b', bg: '#022c22' },
-  { id: 'goa', name: 'Goa Sunset', primary: '#fbbf24', secondary: '#ef4444', bg: '#1c0c04' },
-  { id: 'cyberpunk', name: 'Cyber Matrix', primary: '#06b6d4', secondary: '#ec4899', bg: '#090d16' },
+  { id: 'emerald', name: 'EMERALD PALMS', primary: '#10b981', secondary: '#f59e0b', bg: '#022c22' },
+  { id: 'goa', name: 'GOA SUNSET', primary: '#fbbf24', secondary: '#ef4444', bg: '#1c0c04' },
+  { id: 'cyberpunk', name: 'CYBER MATRIX', primary: '#06b6d4', secondary: '#ec4899', bg: '#090d16' },
 ];
 
 export default function CardCanvas({
@@ -25,9 +25,10 @@ export default function CardCanvas({
   canAccessStep,
 }: CardCanvasProps) {
   const [selectedTheme, setSelectedTheme] = useState(THEMES[0]);
-  const [name, setName] = useState('Ankan Mahanti');
-  const [role, setRole] = useState('Student / Builder');
-  const [handle, setHandle] = useState('@ankanmahanti');
+  const [name, setName] = useState('');
+  const [role, setRole] = useState('');
+  const [handle, setHandle] = useState('');
+  const [title, setTitle] = useState('BUILDER');
   const [autoId, setAutoId] = useState('HHG26-ANK-8F3A');
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
   const [showVerificationModal, setShowVerificationModal] = useState(false);
@@ -41,7 +42,7 @@ export default function CardCanvas({
     setAutoId(`HHG26-${prefix}-${randomHex}`);
   };
 
-  // Pre-generate QR code URL independently
+  // Pre-render QR code independently to prevent expensive re-draws during typing
   useEffect(() => {
     let cancelled = false;
     const generateQR = async () => {
@@ -59,7 +60,6 @@ export default function CardCanvas({
     };
   }, [autoId, name, role]);
 
-  // Main canvas render callback
   const renderCard = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -69,20 +69,17 @@ export default function CardCanvas({
     canvas.width = 1080;
     canvas.height = 1350;
 
-    // Background Fill
+    // Background
     ctx.fillStyle = selectedTheme.bg;
     ctx.fillRect(0, 0, 1080, 1350);
 
-    // Decorative Coastline Waves Accent
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
-    ctx.lineWidth = 4;
-    for (let i = 0; i < 5; i++) {
-      ctx.beginPath();
-      ctx.arc(950, 100, 100 + i * 40, 0, Math.PI * 2);
-      ctx.stroke();
+    // Left Geometric Pattern Strip
+    ctx.fillStyle = 'rgba(255, 213, 46, 0.08)';
+    for (let i = 0; i < 15; i++) {
+      ctx.fillRect(30, 80 + i * 80, 20, 40);
     }
 
-    // Border Frame
+    // Outer Glow Frame
     const gradient = ctx.createLinearGradient(0, 0, 1080, 1350);
     gradient.addColorStop(0, selectedTheme.primary);
     gradient.addColorStop(1, selectedTheme.secondary);
@@ -90,34 +87,35 @@ export default function CardCanvas({
     ctx.lineWidth = 18;
     ctx.strokeRect(24, 24, 1032, 1302);
 
-    // Header Branding
+    // Header Title
     ctx.fillStyle = selectedTheme.primary;
-    ctx.font = '900 46px Inter, sans-serif';
+    ctx.font = '900 48px Inter, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('HH GOA 2026', 540, 95);
+    ctx.fillText('HACKER HOUSE GOA', 540, 95);
 
-    ctx.fillStyle = '#fbbf24';
+    // Date & Location Pill
+    ctx.fillStyle = '#FFD52E';
     ctx.font = 'bold 22px Inter, sans-serif';
-    ctx.fillText('BUILDER PASS', 540, 138);
+    ctx.fillText('28—31 OCT 2026 • GOA, INDIA', 540, 138);
 
     // Photo Box Specifications
     const photoSize = 460;
     const photoX = (1080 - photoSize) / 2;
     const photoY = 175;
 
-    const drawTextAndFooter = () => {
-      // Builder Name
-      const displayName = name.trim().length > 22 ? `${name.trim().substring(0, 20)}...` : name.trim() || 'Ankan Mahanti';
+    const drawTextAndDetails = () => {
+      // Name Typography
+      const displayName = name.trim().length > 22 ? `${name.trim().substring(0, 20)}...` : name.trim() || 'YOUR NAME HERE';
       ctx.fillStyle = '#ffffff';
       ctx.font = '900 58px Inter, sans-serif';
       ctx.fillText(displayName.toUpperCase(), 540, 715);
 
-      // Twitter Handle
+      // Twitter / X Handle
       ctx.fillStyle = selectedTheme.primary;
       ctx.font = '600 28px Inter, sans-serif';
-      ctx.fillText(handle.trim() || '@builder', 540, 760);
+      ctx.fillText(handle.trim() || '@handle', 540, 760);
 
-      // Role Box
+      // Role Pill Box
       ctx.fillStyle = 'rgba(6, 44, 32, 0.95)';
       ctx.beginPath();
       if (typeof ctx.roundRect === 'function') {
@@ -130,9 +128,10 @@ export default function CardCanvas({
       ctx.lineWidth = 2;
       ctx.stroke();
 
-      ctx.fillStyle = '#fbbf24';
-      ctx.font = 'bold 28px Inter, sans-serif';
-      ctx.fillText((role.trim() || 'BUILDER').toUpperCase(), 540, 844);
+      const displayRole = role.trim() ? `${role.trim().toUpperCase()} • ${title}` : `${title} ⚡`;
+      ctx.fillStyle = '#FFD52E';
+      ctx.font = 'bold 26px Inter, sans-serif';
+      ctx.fillText(displayRole, 540, 844);
 
       // Draw QR Code
       if (qrDataUrl) {
@@ -146,7 +145,7 @@ export default function CardCanvas({
       // Metadata Footer
       ctx.fillStyle = '#10b981';
       ctx.font = 'bold 26px Inter, sans-serif';
-      ctx.fillText(autoId, 540, 1140);
+      ctx.fillText(`ID: ${autoId}`, 540, 1140);
 
       ctx.fillStyle = '#94a3b8';
       ctx.font = '20px Inter, sans-serif';
@@ -168,7 +167,6 @@ export default function CardCanvas({
         ctx.drawImage(img, photoX, photoY, photoSize, photoSize);
         ctx.restore();
 
-        // Photo Border Accent
         ctx.strokeStyle = selectedTheme.primary;
         ctx.lineWidth = 6;
         ctx.beginPath();
@@ -179,14 +177,14 @@ export default function CardCanvas({
         }
         ctx.stroke();
 
-        drawTextAndFooter();
+        drawTextAndDetails();
       };
       img.onerror = () => {
-        drawTextAndFooter();
+        drawTextAndDetails();
       };
       img.src = userImage;
     } else {
-      // Empty-State Placeholder Frame
+      // Empty-State Placeholder
       ctx.fillStyle = 'rgba(6, 44, 32, 0.6)';
       ctx.fillRect(photoX, photoY, photoSize, photoSize);
       ctx.strokeStyle = selectedTheme.primary;
@@ -195,14 +193,18 @@ export default function CardCanvas({
 
       ctx.fillStyle = '#94a3b8';
       ctx.font = '600 24px Inter, sans-serif';
-      ctx.fillText('YOUR PHOTO WILL APPEAR HERE', 540, photoY + photoSize / 2);
+      ctx.fillText('PHOTO REQUIRED', 540, photoY + photoSize / 2);
 
-      drawTextAndFooter();
+      drawTextAndDetails();
     }
-  }, [userImage, selectedTheme, name, role, handle, autoId, qrDataUrl]);
+  }, [userImage, selectedTheme, name, role, handle, title, autoId, qrDataUrl]);
 
+  // Debounce canvas redraws (150ms) to ensure smooth typing performance
   useEffect(() => {
-    renderCard();
+    const timer = window.setTimeout(() => {
+      renderCard();
+    }, 150);
+    return () => window.clearTimeout(timer);
   }, [renderCard]);
 
   const handleDownload = () => {
@@ -232,25 +234,26 @@ export default function CardCanvas({
 
   const handleShareToX = () => {
     const shareText = encodeURIComponent(
-      `Just built my Hacker House Goa 2026 Builder Pass! 🌴🚀\n\nGenerate yours: https://hh-goa-card-gen-eight.vercel.app/\n\n#FrameInGoa @HackerHouseGoa`
+      `Just generated my Builder ID Card for Hacker House Goa 2026! 🌴🚀\n\nCreate yours: https://hh-goa-card-gen-eight.vercel.app/\n\n#FrameInGoa @HackerHouseGoa`
     );
-    window.open(`https://twitter.com/intent/tweet?text=${shareText}`, '_blank');
+    window.open(`https://twitter.com/intent/tweet?text=${shareText}`, '_blank', 'noopener,noreferrer');
   };
 
   return (
     <div className="w-full">
-      {/* Pass Details Modal */}
+      {/* Pass Preview Details Modal */}
       {showVerificationModal && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
           <div className="bg-emerald-950 border-2 border-emerald-500/80 p-6 rounded-2xl max-w-md w-full text-center space-y-4 shadow-2xl">
             <div className="w-12 h-12 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto text-2xl font-bold">
               ✓
             </div>
-            <h3 className="text-xl font-bold text-amber-400">PASS DETAILS</h3>
-            <p className="text-xs text-emerald-200">Hacker House Goa 2026 Pass Preview</p>
+            <h3 className="text-xl font-bold text-amber-400">PASS DETAILS & PREVIEW</h3>
+            <p className="text-xs text-emerald-200">Hacker House Goa 2026 Credential</p>
             <div className="bg-slate-900/90 p-4 rounded-xl text-left text-xs space-y-2 border border-emerald-800">
-              <div><span className="text-slate-400">Name:</span> <strong className="text-white">{name}</strong></div>
-              <div><span className="text-slate-400">Role:</span> <strong className="text-amber-400">{role}</strong></div>
+              <div><span className="text-slate-400">Name:</span> <strong className="text-white">{name || 'Not provided'}</strong></div>
+              <div><span className="text-slate-400">Role:</span> <strong className="text-amber-400">{role || 'Builder'}</strong></div>
+              <div><span className="text-slate-400">Title:</span> <strong className="text-amber-300">{title}</strong></div>
               <div><span className="text-slate-400">Builder ID:</span> <strong className="text-emerald-400 font-mono">{autoId}</strong></div>
               <div><span className="text-slate-400">Status:</span> <strong className="text-emerald-400">🟢 Active Builder Pass</strong></div>
             </div>
@@ -265,9 +268,9 @@ export default function CardCanvas({
         </div>
       )}
 
-      {/* Main Grid Layout */}
+      {/* Main Layout Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Control Panel */}
+        {/* Left Form Controls */}
         <div className="lg:col-span-5 space-y-4">
           {activeStep === 1 && (
             <div className="bg-emerald-950/90 border border-emerald-800 p-6 rounded-2xl shadow-xl">
@@ -325,6 +328,20 @@ export default function CardCanvas({
                     className="w-full mt-1 bg-emerald-900/60 border border-emerald-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-amber-400"
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-emerald-300">Builder Title</label>
+                <select
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="w-full mt-1 bg-emerald-900/60 border border-emerald-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-amber-400"
+                >
+                  <option value="BUILDER">⚡ BUILDER</option>
+                  <option value="CODE WIZARD">🪄 CODE WIZARD</option>
+                  <option value="AI EXPLORER">🤖 AI EXPLORER</option>
+                  <option value="PROTOCOL ARCHITECT">🌐 PROTOCOL ARCHITECT</option>
+                </select>
               </div>
 
               <div>
@@ -456,7 +473,7 @@ export default function CardCanvas({
           )}
         </div>
 
-        {/* Hero Card Showcase Panel */}
+        {/* Right Column: Hero Preview */}
         <div className="lg:col-span-7 flex flex-col items-center justify-start">
           <div className="w-full max-w-md rounded-2xl overflow-hidden border-2 border-amber-400/60 shadow-[0_0_50px_rgba(251,191,36,0.15)] bg-emerald-950">
             <canvas ref={canvasRef} className="w-full h-auto block" />

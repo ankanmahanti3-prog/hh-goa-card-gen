@@ -28,9 +28,21 @@ export default function Home() {
     }
   }, []);
 
-  const handleImageSelected = (src: string) => {
-    setSelectedImage(src);
-    setCroppedImage(null);
+  // Safe object URL revocation when selecting new images
+  const handleImageSelected = (objectUrl: string) => {
+    setSelectedImage((previous) => {
+      if (previous && previous.startsWith('blob:')) {
+        URL.revokeObjectURL(previous);
+      }
+      return objectUrl;
+    });
+
+    setCroppedImage((previous) => {
+      if (previous && previous.startsWith('blob:')) {
+        URL.revokeObjectURL(previous);
+      }
+      return null;
+    });
   };
 
   const handleCropComplete = (croppedUrl: string) => {
@@ -39,12 +51,18 @@ export default function Home() {
   };
 
   const handleReset = () => {
+    if (selectedImage?.startsWith('blob:')) {
+      URL.revokeObjectURL(selectedImage);
+    }
+    if (croppedImage?.startsWith('blob:')) {
+      URL.revokeObjectURL(croppedImage);
+    }
     setSelectedImage(null);
     setCroppedImage(null);
     setActiveStep(1);
   };
 
-  // Step guard checking user progress
+  // Step guard checking progress
   const canAccessStep = (step: number) => {
     if (step === 1) return true;
     if (step === 2) return !!croppedImage || !!selectedImage;
@@ -56,7 +74,7 @@ export default function Home() {
     <main className="min-h-screen relative bg-gradient-to-b from-[#011a14] via-[#03362a] to-[#01120e] text-slate-100 flex flex-col items-center justify-start p-4 sm:p-8">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-6xl h-96 bg-emerald-500/10 blur-[120px] pointer-events-none" />
 
-      {/* Verification Dialog overlay when scanned */}
+      {/* Verification Overlay when QR link is scanned */}
       {verifyData && (
         <div className="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-lg flex items-center justify-center p-4">
           <div className="bg-emerald-950 border-2 border-emerald-400 p-8 rounded-3xl max-w-md w-full text-center space-y-4 shadow-2xl">
@@ -94,7 +112,10 @@ export default function Home() {
           CREATE YOUR BUILDER PASS
         </h1>
         <p className="text-xs sm:text-base text-emerald-200/90 font-medium">
-          Build your identity. Share your signal.
+          Build in sun • Less noise • More signal
+        </p>
+        <p className="text-[11px] text-amber-300/70 font-mono uppercase tracking-wider">
+          28—31 OCT 2026 • GOA, INDIA
         </p>
       </header>
 
