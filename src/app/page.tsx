@@ -13,10 +13,6 @@ export default function Home() {
     setSelectedImage(dataUrl);
   };
 
-  const handleCropComplete = (croppedDataUrl: string) => {
-    setCroppedImage(croppedDataUrl);
-  };
-
   const handleReset = () => {
     setSelectedImage(null);
     setCroppedImage(null);
@@ -24,7 +20,7 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-slate-950 to-black text-slate-100 flex flex-col items-center justify-start p-4 sm:p-8">
-      {/* Top Banner Header */}
+      {/* Studio Header */}
       <div className="max-w-2xl text-center space-y-2 my-6">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-semibold tracking-wide uppercase">
           <span>⚡ Hacker House Goa 2026 Studio</span>
@@ -41,8 +37,8 @@ export default function Home() {
       <div className="w-full max-w-xl">
         {!selectedImage && (
           <div className="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl shadow-xl">
-            <h2 className="text-sm font-bold text-slate-300 mb-3 text-left">
-              STEP 1: UPLOAD BUILDER PHOTO
+            <h2 className="text-sm font-bold text-slate-300 mb-3 text-left uppercase tracking-wider">
+              Step 1: Upload Builder Photo
             </h2>
             <ImageUploader onImageSelected={handleImageSelected} />
           </div>
@@ -50,12 +46,16 @@ export default function Home() {
 
         {selectedImage && !croppedImage && (
           <div className="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl shadow-xl">
-            <h2 className="text-sm font-bold text-slate-300 mb-3 text-left">
-              STEP 2: ADJUST & CROP PHOTO
+            <h2 className="text-sm font-bold text-slate-300 mb-3 text-left uppercase tracking-wider">
+              Step 2: Adjust & Crop Photo
             </h2>
             <ImageCropper
               imageSrc={selectedImage}
-              onCropComplete={handleCropComplete}
+              onCropComplete={(data: any) => {
+                if (typeof data === 'string') {
+                  setCroppedImage(data);
+                }
+              }}
               onCancel={handleReset}
             />
           </div>
