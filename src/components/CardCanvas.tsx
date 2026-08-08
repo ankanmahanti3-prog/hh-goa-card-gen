@@ -49,7 +49,7 @@ export default function CardCanvas({
     img.src = userImage;
 
     img.onload = async () => {
-      // 1080 x 1350 High-Resolution Social Pass Ratio
+      // High-Res Render Canvas (1080 x 1350)
       canvas.width = 1080;
       canvas.height = 1350;
 
@@ -57,7 +57,7 @@ export default function CardCanvas({
       ctx.fillStyle = selectedTheme.bg;
       ctx.fillRect(0, 0, 1080, 1350);
 
-      // Subtle Decorative Goa Coastline Waves (Top Right Accent)
+      // Subtle Decorative Goa Coastline Waves
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
       ctx.lineWidth = 4;
       for (let i = 0; i < 5; i++) {
@@ -66,7 +66,7 @@ export default function CardCanvas({
         ctx.stroke();
       }
 
-      // Outer Neon Glow Border
+      // Outer Glow Border
       const gradient = ctx.createLinearGradient(0, 0, 1080, 1350);
       gradient.addColorStop(0, selectedTheme.primary);
       gradient.addColorStop(1, selectedTheme.secondary);
@@ -74,7 +74,7 @@ export default function CardCanvas({
       ctx.lineWidth = 18;
       ctx.strokeRect(24, 24, 1032, 1302);
 
-      // Event Branding
+      // Event Branding Header
       ctx.fillStyle = selectedTheme.primary;
       ctx.font = '900 46px Inter, sans-serif';
       ctx.textAlign = 'center';
@@ -159,11 +159,13 @@ export default function CardCanvas({
 
       ctx.fillStyle = '#94a3b8';
       ctx.font = '20px Inter, sans-serif';
-      ctx.fillText('SCAN QR CODE TO VERIFY PASS', 540, 1180);
+      ctx.fillText('SCAN TO VERIFY', 540, 1180);
       ctx.fillText('#FrameInGoa • LESS NOISE. MORE SIGNAL.', 540, 1220);
     };
-  }, [userImage, selectedTheme, name, role, handle, autoId]);
+  // Note: Removed `handle` from dependencies to eliminate unnecessary redraws when typing handles
+  }, [userImage, selectedTheme, name, role, autoId]);
 
+  // Fast memory-efficient toBlob() download handler
   const handleDownload = () => {
     if (!name.trim()) {
       setValidationError('Please enter your full name before downloading.');
@@ -173,11 +175,16 @@ export default function CardCanvas({
 
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const image = canvas.toDataURL('image/png');
-    const link = document.createElement('a');
-    link.href = image;
-    link.download = `${autoId}_HackerHouse_Goa_Pass.png`;
-    link.click();
+
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${autoId}_HackerHouse_Goa_Pass.png`;
+      link.click();
+      URL.revokeObjectURL(url);
+    }, 'image/png');
   };
 
   const handleShareToX = () => {
@@ -196,7 +203,7 @@ export default function CardCanvas({
             <div className="w-12 h-12 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto text-2xl font-bold">
               ✓
             </div>
-            <h3 className="text-xl font-bold text-amber-400">PASS VERIFIED</h3>
+            <h3 className="text-xl font-bold text-amber-400">CREDENTIAL VERIFIED</h3>
             <p className="text-xs text-emerald-200">Hacker House Goa 2026 Official Builder Pass</p>
             <div className="bg-slate-900/90 p-4 rounded-xl text-left text-xs space-y-2 border border-emerald-800">
               <div><span className="text-slate-400">Name:</span> <strong className="text-white">{name}</strong></div>
