@@ -69,7 +69,13 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-[#021812] text-slate-100 flex flex-col items-center justify-start font-mono selection:bg-amber-400 selection:text-slate-950">
+    <main className="min-h-screen relative bg-[#021812] text-slate-100 flex flex-col items-center justify-start font-mono selection:bg-amber-400 selection:text-slate-950 overflow-x-hidden">
+      {/* Background Beach Setup Ambient Image */}
+      <div 
+        className="fixed inset-0 pointer-events-none opacity-20 bg-cover bg-center mix-blend-luminosity z-0"
+        style={{ backgroundImage: "url('/hacker-setup-bg.png')" }}
+      />
+
       {/* Verification Overlay Modal */}
       {verifyData && (
         <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-xl flex items-center justify-center p-4">
@@ -105,7 +111,7 @@ export default function Home() {
       )}
 
       {/* Hero Header Studio Banner */}
-      <div className="w-full bg-[#01120d] border-b border-emerald-900/60 px-4 py-6 text-center space-y-3">
+      <div className="relative z-10 w-full bg-[#01120d]/90 backdrop-blur-md border-b border-emerald-900/60 px-4 py-6 text-center">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="text-left space-y-1">
             <div className="flex items-center gap-2">
@@ -115,16 +121,22 @@ export default function Home() {
             <h1 className="text-3xl font-black text-white tracking-tight">BUILDER IDENTITY STUDIO</h1>
           </div>
 
-          <div className="flex items-center gap-4 text-xs text-amber-300 bg-emerald-950/80 px-4 py-2.5 rounded-xl border border-emerald-800/80">
-            <span>📍 GOA, INDIA</span>
-            <span>•</span>
-            <span>📅 28 — 31 OCT 2026</span>
+          <div className="flex items-center gap-4">
+            <div className="hidden sm:block">
+              {/* Official Studio Time Badge */}
+              <img src="/studio-time-stamp.png" alt="Studio Time" className="h-12 w-auto object-contain" />
+            </div>
+            <div className="flex items-center gap-3 text-xs text-amber-300 bg-emerald-950/80 px-4 py-2.5 rounded-xl border border-emerald-800/80">
+              <span>📍 GOA, INDIA</span>
+              <span>•</span>
+              <span>📅 28 — 31 OCT 2026</span>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Event Yellow Ticker Ribbon */}
-      <div className="w-full bg-amber-400 text-slate-950 py-2 px-4 font-black text-xs uppercase tracking-widest overflow-hidden whitespace-nowrap shadow-md">
+      <div className="relative z-10 w-full bg-amber-400 text-slate-950 py-2 px-4 font-black text-xs uppercase tracking-widest overflow-hidden whitespace-nowrap shadow-md">
         <div className="flex justify-around items-center gap-8">
           <span>⚡ BUILD IN SUN</span>
           <span>•</span>
@@ -137,8 +149,8 @@ export default function Home() {
       </div>
 
       {/* Step Wizard Bar */}
-      <div className="w-full max-w-6xl px-4 mt-6">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-[#011710] p-2 rounded-2xl border border-emerald-800/80">
+      <div className="relative z-10 w-full max-w-6xl px-4 mt-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-[#011710]/90 backdrop-blur-md p-2 rounded-2xl border border-emerald-800/80 shadow-2xl">
           {[
             { step: 1, label: '01 PHOTO', sub: 'Upload & Crop' },
             { step: 2, label: '02 DETAILS', sub: 'Your Information' },
@@ -154,7 +166,7 @@ export default function Home() {
                 onClick={() => accessible && setActiveStep(item.step)}
                 className={`py-3 px-3 text-left rounded-xl transition ${
                   activeStep === item.step
-                    ? 'bg-amber-400 text-slate-950 shadow-lg'
+                    ? 'bg-amber-400 text-slate-950 shadow-lg font-black'
                     : accessible
                     ? 'text-emerald-300/80 hover:bg-emerald-900/40 hover:text-white cursor-pointer'
                     : 'text-emerald-800/40 cursor-not-allowed'
@@ -169,7 +181,7 @@ export default function Home() {
       </div>
 
       {/* Studio Workstation Grid */}
-      <div className="w-full max-w-6xl p-4 my-2">
+      <div className="relative z-10 w-full max-w-6xl p-4 my-2">
         <CardCanvas
           userImage={croppedImage}
           activeStep={activeStep}
@@ -178,7 +190,7 @@ export default function Home() {
           renderUploadSlot={
             <div className="space-y-4">
               {!selectedImage && (
-                <div className="bg-[#03291e]/90 border border-emerald-800 p-6 rounded-2xl">
+                <div className="bg-[#03291e]/90 border border-emerald-800 p-6 rounded-2xl shadow-xl backdrop-blur-md">
                   <h3 className="text-xs font-black text-amber-400 uppercase tracking-wider mb-3">
                     01 / BUILDER PHOTO *
                   </h3>
@@ -187,7 +199,7 @@ export default function Home() {
               )}
 
               {selectedImage && !croppedImage && (
-                <div className="bg-[#03291e]/90 border border-emerald-800 p-6 rounded-2xl">
+                <div className="bg-[#03291e]/90 border border-emerald-800 p-6 rounded-2xl shadow-xl backdrop-blur-md">
                   <h3 className="text-xs font-black text-amber-400 uppercase tracking-wider mb-3">
                     01 / CROP & ADJUST PHOTO
                   </h3>
@@ -200,7 +212,7 @@ export default function Home() {
               )}
 
               {croppedImage && (
-                <div className="flex justify-between items-center bg-emerald-950 p-4 rounded-xl border border-emerald-800">
+                <div className="flex justify-between items-center bg-emerald-950/90 p-4 rounded-xl border border-emerald-800 backdrop-blur-md">
                   <span className="text-xs text-emerald-300 font-bold">✓ Photo Uploaded & Cropped</span>
                   <button
                     type="button"
@@ -217,21 +229,21 @@ export default function Home() {
       </div>
 
       {/* Trust Badges Footer */}
-      <footer className="w-full max-w-6xl mx-auto px-4 py-8 border-t border-emerald-900/60 mt-8 text-xs text-emerald-400/70">
+      <footer className="relative z-10 w-full max-w-6xl mx-auto px-4 py-8 border-t border-emerald-900/60 mt-8 text-xs text-emerald-400/70">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-          <div className="p-3 bg-[#011710] rounded-xl border border-emerald-900">
+          <div className="p-3 bg-[#011710]/90 backdrop-blur-md rounded-xl border border-emerald-900">
             <div className="font-bold text-white mb-0.5">🛡️ VERIFIABLE</div>
             <div>Unique ID + QR Link</div>
           </div>
-          <div className="p-3 bg-[#011710] rounded-xl border border-emerald-900">
+          <div className="p-3 bg-[#011710]/90 backdrop-blur-md rounded-xl border border-emerald-900">
             <div className="font-bold text-white mb-0.5">🔒 100% LOCAL</div>
             <div>Browser-only processing</div>
           </div>
-          <div className="p-3 bg-[#011710] rounded-xl border border-emerald-900">
+          <div className="p-3 bg-[#011710]/90 backdrop-blur-md rounded-xl border border-emerald-900">
             <div className="font-bold text-white mb-0.5">⚡ FAST ENGINE</div>
             <div>High-res 1080×1350 canvas</div>
           </div>
-          <div className="p-3 bg-[#011710] rounded-xl border border-emerald-900">
+          <div className="p-3 bg-[#011710]/90 backdrop-blur-md rounded-xl border border-emerald-900">
             <div className="font-bold text-white mb-0.5">🌴 GOA 2026</div>
             <div>Ship From Paradise</div>
           </div>
