@@ -49,15 +49,24 @@ export default function CardCanvas({
     img.src = userImage;
 
     img.onload = async () => {
-      // 1080 x 1350 Standard Social Pass Ratio
+      // 1080 x 1350 High-Resolution Social Pass Ratio
       canvas.width = 1080;
       canvas.height = 1350;
 
-      // Background
+      // Deep Background
       ctx.fillStyle = selectedTheme.bg;
       ctx.fillRect(0, 0, 1080, 1350);
 
-      // Outer Glow Border
+      // Subtle Decorative Goa Coastline Waves (Top Right Accent)
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
+      ctx.lineWidth = 4;
+      for (let i = 0; i < 5; i++) {
+        ctx.beginPath();
+        ctx.arc(950, 100, 100 + i * 40, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      // Outer Neon Glow Border
       const gradient = ctx.createLinearGradient(0, 0, 1080, 1350);
       gradient.addColorStop(0, selectedTheme.primary);
       gradient.addColorStop(1, selectedTheme.secondary);
@@ -65,7 +74,7 @@ export default function CardCanvas({
       ctx.lineWidth = 18;
       ctx.strokeRect(24, 24, 1032, 1302);
 
-      // Event Branding Header
+      // Event Branding
       ctx.fillStyle = selectedTheme.primary;
       ctx.font = '900 46px Inter, sans-serif';
       ctx.textAlign = 'center';
@@ -180,7 +189,7 @@ export default function CardCanvas({
 
   return (
     <div className="w-full">
-      {/* Verification Dialog Modal */}
+      {/* Verification Modal */}
       {showVerificationModal && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
           <div className="bg-emerald-950 border-2 border-emerald-500/80 p-6 rounded-2xl max-w-md w-full text-center space-y-4 shadow-2xl">
@@ -319,7 +328,7 @@ export default function CardCanvas({
               </h3>
 
               <p className="text-xs text-emerald-200/80">
-                Review your official pass on the right. You can test live QR verification before downloading or sharing.
+                Review your official pass on the right. You can verify the QR credential before downloading or sharing.
               </p>
 
               <button
@@ -327,7 +336,7 @@ export default function CardCanvas({
                 onClick={() => setShowVerificationModal(true)}
                 className="w-full py-3 bg-emerald-900/90 border border-emerald-700 text-emerald-300 font-bold rounded-xl text-xs hover:bg-emerald-800 transition"
               >
-                🔐 Verify QR Credential
+                🔐 Verify Credential
               </button>
 
               <button
