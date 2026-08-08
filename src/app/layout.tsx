@@ -1,22 +1,24 @@
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import './globals.css';
-
-const inter = Inter({ subsets: ['latin'] });
+import type { Metadata } from "next";
+import "./globals.css";
 
 export const metadata: Metadata = {
-  title: 'Hacker House Goa 2026 — Builder ID Card Generator',
-  description: 'Create, customize, and share your official Hacker House Goa 2026 Builder Pass.',
+  title: "Hacker House Goa 2026 — Builder Identity Studio",
+  description: "Generate your official verifiable Builder Identity Pass for Hacker House Goa 2026.",
+  icons: {
+    icon: "/goa-hindi-badge.png",
+    shortcut: "/goa-hindi-badge.png",
+    apple: "/goa-hindi-badge.png",
+  },
 };
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
     <html lang="en">
-      <body className={`${inter.className} bg-[#01120e] text-slate-100 antialiased`}>
+      <body className="antialiased">
         {children}
       </body>
     </html>
