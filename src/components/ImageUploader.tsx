@@ -9,32 +9,73 @@ interface ImageUploaderProps {
 const MAX_DIMENSION = 900;
 const JPEG_QUALITY = 0.78;
 
-async function processImage(file: File): Promise<string> {
-  let sourceBlob: Blob = file;
-
+async function decodeImageFile(file: File): Promise<Blob> {
   const isHEIC =
     file.name.toLowerCase().endsWith('.heic') ||
     file.name.toLowerCase().endsWith('.heif') ||
     file.type === 'image/heic' ||
     file.type === 'image/heif';
 
-  // HEIC conversion only when strictly necessary
+  // Try native browser decoding first
+  if (isHEIC && 'createImageBitmap' in window) {
+    try {
+      const bitmap = await createImageBitmap(file);
+      const canvas = document.createElement('canvas');
+      canvas.width = bitmap.width;
+      canvas.height = bitmap.height;
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        bitmap.close();
+        throw new Error('Canvas unavailable');
+      }
+
+      ctx.drawImage(bitmap, 0, 0);
+      bitmap.close();
+
+      const blob = await new Promise<Blob>((resolve, reject) => {
+        canvas.toBlob(
+          (result) => {
+            if (result) resolve(result);
+            else reject(new Error('Native conversion failed'));
+          },
+          'image/jpeg',
+          0.75
+        );
+      });
+
+      console.log('Native HEIC decoding succeeded');
+      return blob;
+    } catch (error) {
+      console.log('Native HEIC decoding unavailable, falling back to JS decoder');
+    }
+  }
+
+  // Fallback for browsers without native HEIC support
   if (isHEIC) {
+    console.time('HEIC conversion');
     const heic2any = (await import('heic2any')).default;
     const converted = await heic2any({
       blob: file,
       toType: 'image/jpeg',
-      quality: 0.72,
+      quality: 0.7,
     });
-    sourceBlob = Array.isArray(converted) ? converted[0] : converted;
+    console.timeEnd('HEIC conversion');
+
+    return Array.isArray(converted) ? converted[0] : converted;
   }
 
-  // Fast native image decoding
+  return file;
+}
+
+async function processImage(file: File): Promise<string> {
+  const sourceBlob = await decodeImageFile(file);
   const bitmap = await createImageBitmap(sourceBlob);
+
   let width = bitmap.width;
   let height = bitmap.height;
 
-  // Downscale before handing to cropper
+  // Downscale before sending to cropper
   if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
     const scale = Math.min(MAX_DIMENSION / width, MAX_DIMENSION / height);
     width = Math.round(width * scale);
@@ -56,18 +97,18 @@ async function processImage(file: File): Promise<string> {
   ctx.drawImage(bitmap, 0, 0, width, height);
   bitmap.close();
 
-  const blob = await new Promise<Blob>((resolve, reject) => {
+  const output = await new Promise<Blob>((resolve, reject) => {
     canvas.toBlob(
-      (result) => {
-        if (result) resolve(result);
-        else reject(new Error('Image compression failed'));
+      (blob) => {
+        if (blob) resolve(blob);
+        else reject(new Error('Compression failed'));
       },
       'image/jpeg',
       JPEG_QUALITY
     );
   });
 
-  return URL.createObjectURL(blob);
+  return URL.createObjectURL(output);
 }
 
 export default function ImageUploader({ onImageSelected }: ImageUploaderProps) {
@@ -104,7 +145,7 @@ export default function ImageUploader({ onImageSelected }: ImageUploaderProps) {
         file.type === 'image/heic' ||
         file.type === 'image/heif';
 
-      setStatus(isHEIC ? 'Optimizing iPhone photo…' : 'Preparing photo…');
+      setStatus(isHEIC ? '⚡ Preparing iPhone photo…' : 'Preparing photo…');
       const imageUrl = await processImage(file);
       onImageSelected(imageUrl);
       setStatus('Photo ready ✓');
@@ -176,7 +217,7 @@ export default function ImageUploader({ onImageSelected }: ImageUploaderProps) {
               <span>HEIC</span>
             </div>
             <div className="relative mt-1.5 text-[10px] text-slate-400">
-              iPhone photos supported
+              iPhone photos supported (Native + JS fallback)
             </div>
           </>
         )}
