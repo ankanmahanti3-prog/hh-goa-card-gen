@@ -10,6 +10,24 @@ export default function Home() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [croppedImage, setCroppedImage] = useState<string | null>(null);
   const [verifyData, setVerifyData] = useState<{ id: string; name: string; role: string } | null>(null);
+  const [currentTime, setCurrentTime] = useState<string>('');
+
+  // Live Real-Time Clock Engine
+  useEffect(() => {
+    const updateClock = () => {
+      const now = new Date();
+      const formatted = now.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+      });
+      setCurrentTime(formatted);
+    };
+
+    updateClock();
+    const interval = setInterval(updateClock, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -70,12 +88,12 @@ export default function Home() {
 
   return (
     <main className="min-h-screen relative bg-[#01140f] text-slate-100 flex flex-col items-center justify-start font-mono selection:bg-amber-400 selection:text-slate-950 overflow-x-hidden">
-      {/* 1. Ambient Background Glow Orbs */}
+      {/* Ambient Background Glow Orbs */}
       <div className="fixed top-1/4 -left-32 w-96 h-96 bg-emerald-500/10 rounded-full blur-[140px] pointer-events-none z-0 animate-[pulse_6s_ease-in-out_infinite]" />
       <div className="fixed top-1/3 -right-32 w-96 h-96 bg-amber-500/10 rounded-full blur-[140px] pointer-events-none z-0 animate-[pulse_8s_ease-in-out_infinite]" />
       <div className="fixed -bottom-20 left-1/2 -translate-x-1/2 w-[600px] h-96 bg-emerald-600/10 rounded-full blur-[160px] pointer-events-none z-0" />
 
-      {/* 2. Low-Opacity Repeating Pattern */}
+      {/* Repeating Pattern Backdrop */}
       <div 
         className="fixed inset-0 pointer-events-none opacity-10 bg-repeat bg-center mix-blend-screen z-0"
         style={{ backgroundImage: "url('/goa-beach-illustration.png')", backgroundSize: '600px' }}
@@ -116,7 +134,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* Official Graphical Header Banner */}
+      {/* Header Banner */}
       <div className="relative z-10 w-full bg-[#01120d]/90 backdrop-blur-md border-b border-emerald-900/60 px-4 py-5 text-center shadow-lg">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           
@@ -136,8 +154,21 @@ export default function Home() {
 
           {/* Right Header Badges */}
           <div className="flex items-center gap-4">
-            {/* Official Graphic Studio Time Image */}
-            <img src="/studio-time-stamp.png" alt="Studio Time" className="h-12 w-auto object-contain hidden sm:block" />
+            {/* Live Ticking Studio Clock with Doodle Font Style */}
+            <div className="hidden sm:flex flex-col items-center justify-center bg-[#080808] border-2 border-[#FFD52E]/60 px-4 py-1 rounded-xl shadow-lg leading-tight">
+              <span 
+                style={{ fontFamily: "'Permanent Marker', cursive" }} 
+                className="text-2xl text-[#FFD52E] tracking-wider"
+              >
+                {currentTime || '10:13 PM'}
+              </span>
+              <span 
+                style={{ fontFamily: "'Permanent Marker', cursive" }}
+                className="text-[11px] text-[#FFD52E] tracking-widest uppercase -mt-1"
+              >
+                STUDIO
+              </span>
+            </div>
 
             <div className="flex items-center gap-3 text-xs font-bold text-amber-300 bg-emerald-950/90 px-4 py-2.5 rounded-xl border border-emerald-800/80 shadow-lg">
               <span>📍 GOA, INDIA</span>
@@ -149,7 +180,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Event Yellow Ticker Ribbon */}
+      {/* Yellow Ticker Ribbon */}
       <div className="relative z-10 w-full bg-amber-400 text-slate-950 py-2 px-4 font-black text-xs uppercase tracking-widest overflow-hidden whitespace-nowrap shadow-md">
         <div className="flex justify-around items-center gap-8">
           <span>⚡ BUILD IN SUN</span>
@@ -242,7 +273,7 @@ export default function Home() {
         />
       </div>
 
-      {/* Trust Badges Footer */}
+      {/* Footer */}
       <footer className="relative z-10 w-full max-w-6xl mx-auto px-4 py-8 border-t border-emerald-900/60 mt-8 text-xs text-emerald-400/70 space-y-6">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
           <div className="p-3 bg-[#011710]/90 backdrop-blur-md rounded-xl border border-emerald-900 shadow-lg">
