@@ -1,15 +1,20 @@
+import { heicTo } from 'heic-to';
+
 export async function convertHeicToJpeg(file: File): Promise<string> {
-  if (file.name.toLowerCase().endsWith('.heic') || file.type === 'image/heic') {
+  const isHEIC =
+    file.name.toLowerCase().endsWith('.heic') ||
+    file.name.toLowerCase().endsWith('.heif') ||
+    file.type === 'image/heic' ||
+    file.type === 'image/heif';
+
+  if (isHEIC) {
     try {
-      const heic2any = (await import('heic2any')).default;
-      const convertedBlob = await heic2any({
+      const jpeg = await heicTo({
         blob: file,
-        toType: 'image/jpeg',
+        type: 'image/jpeg',
         quality: 0.8,
       });
-
-      const singleBlob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
-      return URL.createObjectURL(singleBlob);
+      return URL.createObjectURL(jpeg);
     } catch (error) {
       console.error('HEIC conversion failed:', error);
       throw error;
