@@ -69,12 +69,13 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen relative bg-[#021812] text-slate-100 flex flex-col items-center justify-start font-mono selection:bg-amber-400 selection:text-slate-950 overflow-x-hidden">
-      {/* Background Beach Setup Ambient Image */}
+    <main className="min-h-screen relative bg-[#011710] text-slate-100 flex flex-col items-center justify-start font-mono selection:bg-amber-400 selection:text-slate-950 overflow-x-hidden">
+      {/* Animated Fullscreen Beach Setup Backdrop */}
       <div 
-        className="fixed inset-0 pointer-events-none opacity-20 bg-cover bg-center mix-blend-luminosity z-0"
+        className="fixed inset-0 pointer-events-none opacity-25 bg-cover bg-center mix-blend-screen scale-105 animate-[pulse_8s_ease-in-out_infinite] z-0"
         style={{ backgroundImage: "url('/hacker-setup-bg.png')" }}
       />
+      <div className="fixed inset-0 pointer-events-none bg-gradient-to-b from-[#01120d]/80 via-transparent to-[#01120d]/90 z-0" />
 
       {/* Verification Overlay Modal */}
       {verifyData && (
@@ -110,28 +111,34 @@ export default function Home() {
         </div>
       )}
 
-      {/* Hero Header Studio Banner */}
-      <div className="relative z-10 w-full bg-[#01120d]/90 backdrop-blur-md border-b border-emerald-900/60 px-4 py-6 text-center">
+      {/* Official Graphical Header Banner */}
+      <div className="relative z-10 w-full bg-[#01120d]/85 backdrop-blur-md border-b border-emerald-900/60 px-4 py-5 text-center">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="text-left space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl font-black text-amber-400 tracking-tighter">HACKER HOUSE <span className="text-pink-500">GOA</span></span>
-              <span className="px-2 py-0.5 bg-pink-600/20 text-pink-400 border border-pink-500/40 text-[10px] font-bold rounded">#FrameInGoa</span>
+          
+          {/* Logo & Subheading Banner */}
+          <div className="flex flex-col items-start space-y-1">
+            <div className="flex items-center gap-3">
+              <img src="/hacker-house-logo.png" alt="Hacker House" className="h-10 sm:h-12 w-auto object-contain" />
+              <img src="/goa-hindi-badge.png" alt="Goa" className="h-10 sm:h-12 w-auto object-contain" />
+              <span className="px-2 py-0.5 bg-pink-600/20 text-pink-400 border border-pink-500/40 text-[10px] font-bold rounded tracking-wider">
+                #FrameInGoa
+              </span>
             </div>
-            <h1 className="text-3xl font-black text-white tracking-tight">BUILDER IDENTITY STUDIO</h1>
+            <h1 className="text-xl sm:text-2xl font-black text-white tracking-widest uppercase">
+              BUILDER IDENTITY STUDIO
+            </h1>
           </div>
 
+          {/* Right Header Badges */}
           <div className="flex items-center gap-4">
-            <div className="hidden sm:block">
-              {/* Official Studio Time Badge */}
-              <img src="/studio-time-stamp.png" alt="Studio Time" className="h-12 w-auto object-contain" />
-            </div>
-            <div className="flex items-center gap-3 text-xs text-amber-300 bg-emerald-950/80 px-4 py-2.5 rounded-xl border border-emerald-800/80">
+            <img src="/studio-time-stamp.png" alt="Studio Time" className="h-12 w-auto object-contain hidden sm:block" />
+            <div className="flex items-center gap-3 text-xs font-bold text-amber-300 bg-emerald-950/90 px-4 py-2.5 rounded-xl border border-emerald-800/80 shadow-lg">
               <span>📍 GOA, INDIA</span>
               <span>•</span>
               <span>📅 28 — 31 OCT 2026</span>
             </div>
           </div>
+
         </div>
       </div>
 
