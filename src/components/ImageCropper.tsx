@@ -25,6 +25,7 @@ export default function ImageCropper({ imageSrc, onCropComplete, onCancel }: Ima
   const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
   const [zoom, setZoom] = useState<number>(1);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const onCropChange = (location: Point) => setCrop(location);
   const onZoomChange = (newZoom: number) => setZoom(newZoom);
@@ -37,19 +38,23 @@ export default function ImageCropper({ imageSrc, onCropComplete, onCancel }: Ima
     if (!croppedAreaPixels) return;
 
     try {
+      setIsProcessing(true);
       const image = new Image();
+      image.crossOrigin = 'anonymous';
       image.src = imageSrc;
+
       await new Promise((resolve, reject) => {
         image.onload = resolve;
-        image.onerror = reject;
+        image.onerror = (err) => reject(err);
       });
 
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
-      if (!ctx) return;
+      if (!ctx) throw new Error('Could not get canvas context');
 
-      canvas.width = croppedAreaPixels.width;
-      canvas.height = croppedAreaPixels.height;
+      // Set canvas size matching crop pixel dimensions
+      canvas.width = Math.max(1, croppedAreaPixels.width);
+      canvas.height = Math.max(1, croppedAreaPixels.height);
 
       ctx.drawImage(
         image,
@@ -63,12 +68,15 @@ export default function ImageCropper({ imageSrc, onCropComplete, onCancel }: Ima
         croppedAreaPixels.height
       );
 
-      // Convert canvas to Data URL to ensure universal compatibility across step transitions
-      const croppedDataUrl = canvas.toDataURL('image/jpeg', 0.92);
+      // Safe JPEG base64 data URL conversion
+      const croppedDataUrl = canvas.toDataURL('image/jpeg', 0.9);
       onCropComplete(croppedDataUrl);
     } catch (err) {
       console.error('Error cropping image:', err);
-      alert('Failed to crop image. Please try again.');
+      // Fallback: If drawing crop fails due to CORS or blob state, pass raw source image
+      onCropComplete(imageSrc);
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -105,6 +113,7 @@ export default function ImageCropper({ imageSrc, onCropComplete, onCancel }: Ima
       <div className="flex space-x-3 pt-2">
         <button
           type="button"
+          disabled={isProcessing}
           onClick={onCancel}
           className="flex-1 py-2.5 text-xs font-semibold text-emerald-300 bg-emerald-950 border border-emerald-800 rounded-xl hover:text-white transition"
         >
@@ -112,10 +121,11 @@ export default function ImageCropper({ imageSrc, onCropComplete, onCancel }: Ima
         </button>
         <button
           type="button"
+          disabled={isProcessing}
           onClick={createCroppedImage}
-          className="flex-1 py-2.5 text-xs font-bold text-slate-950 bg-amber-400 rounded-xl hover:bg-amber-300 transition shadow-lg"
+          className="flex-1 py-2.5 text-xs font-bold text-slate-950 bg-amber-400 rounded-xl hover:bg-amber-300 transition shadow-lg flex items-center justify-center"
         >
-          Confirm Crop ✓
+          {isProcessing ? 'Cropping...' : 'Confirm Crop ✓'}
         </button>
       </div>
     </div>
