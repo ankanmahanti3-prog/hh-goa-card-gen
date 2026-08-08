@@ -88,17 +88,17 @@ export default function Home() {
 
   return (
     <main className="min-h-screen relative bg-[#01140f] text-slate-100 flex flex-col items-center justify-start font-mono selection:bg-amber-400 selection:text-slate-950 overflow-x-hidden">
-      {/* Ambient Background Glow Orbs */}
+      {/* 1. Ambient Background Glow Orbs */}
       <div className="fixed top-1/4 -left-32 w-96 h-96 bg-emerald-500/10 rounded-full blur-[140px] pointer-events-none z-0 animate-[pulse_6s_ease-in-out_infinite]" />
       <div className="fixed top-1/3 -right-32 w-96 h-96 bg-amber-500/10 rounded-full blur-[140px] pointer-events-none z-0 animate-[pulse_8s_ease-in-out_infinite]" />
       <div className="fixed -bottom-20 left-1/2 -translate-x-1/2 w-[600px] h-96 bg-emerald-600/10 rounded-full blur-[160px] pointer-events-none z-0" />
 
-      {/* Repeating Pattern Backdrop */}
+      {/* 2. Low-Opacity Repeating Pattern Background */}
       <div 
-        className="fixed inset-0 pointer-events-none opacity-10 bg-repeat bg-center mix-blend-screen z-0"
+        className="fixed inset-0 pointer-events-none opacity-20 bg-repeat bg-center mix-blend-screen z-0"
         style={{ backgroundImage: "url('/goa-beach-illustration.png')", backgroundSize: '600px' }}
       />
-      <div className="fixed inset-0 pointer-events-none bg-gradient-to-b from-[#01140f]/90 via-[#01140f]/75 to-[#01140f]/95 z-0" />
+      <div className="fixed inset-0 pointer-events-none bg-gradient-to-b from-[#01140f]/80 via-[#01140f]/60 to-[#01140f]/90 z-0" />
 
       {/* Verification Overlay Modal */}
       {verifyData && (
@@ -134,7 +134,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* Header Banner */}
+      {/* Official Graphical Header Banner */}
       <div className="relative z-10 w-full bg-[#01120d]/90 backdrop-blur-md border-b border-emerald-900/60 px-4 py-5 text-center shadow-lg">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           
@@ -161,7 +161,7 @@ export default function Home() {
                 style={{ fontFamily: "'Kalam', cursive" }} 
                 className="text-2xl sm:text-[26px] font-bold text-[#FFD52E] tracking-tight leading-none"
               >
-                {currentTime || '10:46 PM'}
+                {currentTime || '10:49 PM'}
               </span>
               <span 
                 style={{ fontFamily: "'Kalam', cursive" }}
