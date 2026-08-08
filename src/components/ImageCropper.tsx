@@ -99,12 +99,14 @@ export default function ImageCropper({ imageSrc, onCropComplete, onCancel }: Ima
 
       <div className="flex space-x-3 pt-2">
         <button
+          type="button"
           onClick={onCancel}
           className="flex-1 py-2.5 text-xs font-semibold text-emerald-300 bg-emerald-950 border border-emerald-800 rounded-xl hover:text-white transition"
         >
           Cancel
         </button>
         <button
+          type="button"
           onClick={createCroppedImage}
           className="flex-1 py-2.5 text-xs font-bold text-slate-950 bg-amber-400 rounded-xl hover:bg-amber-300 transition shadow-lg"
         >

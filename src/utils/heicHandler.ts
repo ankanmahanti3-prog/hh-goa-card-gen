@@ -1,31 +1,20 @@
-export async function processImageFile(file: File): Promise<File> {
-  const fileName = file.name.toLowerCase();
-
-  // If it's a HEIC / HEIF image, dynamically load heic2any on the client side only
-  if (fileName.endsWith('.heic') || fileName.endsWith('.heif')) {
+export async function convertHeicToJpeg(file: File): Promise<string> {
+  if (file.name.toLowerCase().endsWith('.heic') || file.type === 'image/heic') {
     try {
-      // Dynamically import heic2any only in the browser environment
       const heic2any = (await import('heic2any')).default;
-
       const convertedBlob = await heic2any({
         blob: file,
         toType: 'image/jpeg',
-        quality: 0.9,
+        quality: 0.8,
       });
 
-      const resultBlob = Array.isArray(convertedBlob)
-        ? convertedBlob[0]
-        : convertedBlob;
-
-      return new File([resultBlob], file.name.replace(/\.(heic|heif)$/i, '.jpg'), {
-        type: 'image/jpeg',
-      });
+      const singleBlob = Array.isArray(convertedBlob) ? convertedBlob[0] : convertedBlob;
+      return URL.createObjectURL(singleBlob);
     } catch (error) {
       console.error('HEIC conversion failed:', error);
-      throw new Error('Failed to convert HEIC image.');
+      throw error;
     }
   }
 
-  // Standard formats (PNG, JPG, WEBP, etc.) pass right through
-  return file;
+  return URL.createObjectURL(file);
 }

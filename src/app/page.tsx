@@ -13,7 +13,7 @@ export default function Home() {
   const [croppedImage, setCroppedImage] = useState<string | null>(null);
   const [verifyData, setVerifyData] = useState<{ id: string; name: string; role: string } | null>(null);
 
-  // Check URL parameters for live QR code verification scan
+  // Parse QR scan verification link parameters
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
@@ -48,10 +48,10 @@ export default function Home() {
 
   return (
     <main className="min-h-screen relative bg-gradient-to-b from-[#011a14] via-[#03362a] to-[#01120e] text-slate-100 flex flex-col items-center justify-start p-4 sm:p-8">
-      {/* Background Glow Overlay */}
+      {/* Ambient Glow */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-6xl h-96 bg-emerald-500/10 blur-[120px] pointer-events-none" />
 
-      {/* Live QR Verification Screen (When Scanned from Phone) */}
+      {/* Verification Portal Modal when QR Scanned */}
       {verifyData && (
         <div className="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-lg flex items-center justify-center p-4">
           <div className="bg-emerald-950 border-2 border-emerald-400 p-8 rounded-3xl max-w-md w-full text-center space-y-4 shadow-2xl">
@@ -59,14 +59,15 @@ export default function Home() {
               ✓
             </div>
             <h2 className="text-2xl font-extrabold text-amber-400">CREDENTIAL VERIFIED</h2>
-            <p className="text-xs text-emerald-200">Hacker House Goa 2026 Verification System</p>
+            <p className="text-xs text-emerald-200">Hacker House Goa 2026 Verification Portal</p>
             <div className="bg-slate-900/90 p-5 rounded-2xl text-left text-xs space-y-2.5 border border-emerald-800/80">
               <div><span className="text-slate-400">Name:</span> <strong className="text-white text-sm block">{verifyData.name}</strong></div>
               <div><span className="text-slate-400">Role:</span> <strong className="text-amber-400 block">{verifyData.role}</strong></div>
-              <div><span className="text-slate-400">Credential ID:</span> <strong className="text-emerald-400 font-mono block">{verifyData.id}</strong></div>
+              <div><span className="text-slate-400">Builder ID:</span> <strong className="text-emerald-400 font-mono block">{verifyData.id}</strong></div>
               <div><span className="text-slate-400">Status:</span> <strong className="text-emerald-400 block">🟢 Official Verified Attendee</strong></div>
             </div>
             <button
+              type="button"
               onClick={() => {
                 setVerifyData(null);
                 window.history.replaceState({}, document.title, window.location.pathname);
@@ -92,7 +93,7 @@ export default function Home() {
         </p>
       </header>
 
-      {/* Step Indicator Navigation */}
+      {/* Step Navigation Bar */}
       <div className="relative z-10 w-full max-w-3xl my-4">
         <div className="flex items-center justify-between bg-emerald-950/90 border border-emerald-800/80 p-2 rounded-2xl shadow-xl text-xs font-semibold">
           {[
@@ -103,6 +104,7 @@ export default function Home() {
           ].map((item) => (
             <button
               key={item.step}
+              type="button"
               onClick={() => setActiveStep(item.step)}
               className={`flex-1 py-2.5 px-2 text-center rounded-xl transition ${
                 activeStep === item.step
@@ -116,7 +118,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Main Full-Width Content Workspace */}
+      {/* Main Studio Grid */}
       <div className="relative z-10 w-full max-w-6xl mt-2">
         <CardCanvas
           userImage={croppedImage || DEFAULT_PHOTO}
@@ -150,6 +152,7 @@ export default function Home() {
                 <div className="flex justify-between items-center bg-emerald-900/40 p-4 rounded-xl border border-emerald-800">
                   <span className="text-xs text-emerald-200 font-medium">✓ Photo Cropped & Ready</span>
                   <button
+                    type="button"
                     onClick={handleReset}
                     className="text-xs text-amber-400 underline font-semibold"
                   >

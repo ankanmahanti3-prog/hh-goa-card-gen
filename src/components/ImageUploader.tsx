@@ -1,97 +1,56 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
-import { Upload, Image as ImageIcon, Loader2 } from 'lucide-react';
-import { processImageFile } from '../utils/heicHandler';
+import React, { useRef, useState } from 'react';
+import { convertHeicToJpeg } from '@/utils/heicHandler';
 
 interface ImageUploaderProps {
-  onImageSelected: (imageSrc: string) => void;
+  onImageSelected: (dataUrl: string) => void;
 }
 
 export default function ImageUploader({ onImageSelected }: ImageUploaderProps) {
-  const [loading, setLoading] = useState(false);
-  const [dragActive, setDragActive] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isConverting, setIsConverting] = useState(false);
 
-  const handleFile = async (file: File) => {
-    if (!file.type.startsWith('image/') && !file.name.toLowerCase().endsWith('.heic')) {
-      alert('Please upload a valid image file (JPG, PNG, HEIC).');
-      return;
-    }
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
     try {
-      setLoading(true);
-      // Process file (converts HEIC to JPEG if needed)
-      const processedFile = await processImageFile(file);
-      
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (reader.result) {
-          onImageSelected(reader.result as string);
-        }
-        setLoading(false);
-      };
-      reader.readAsDataURL(processedFile);
-    } catch (error) {
-      console.error(error);
-      alert('Failed to process image.');
-      setLoading(false);
-    }
-  };
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      handleFile(e.target.files[0]);
-    }
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFile(e.dataTransfer.files[0]);
+      setIsConverting(true);
+      const imageUrl = await convertHeicToJpeg(file);
+      onImageSelected(imageUrl);
+    } catch (err) {
+      alert('Could not parse image file. Please try a standard JPG/PNG.');
+    } finally {
+      setIsConverting(false);
     }
   };
 
   return (
-    <div className="w-full max-w-md mx-auto p-4">
-      <div
-        onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
-        onDragLeave={() => setDragActive(false)}
-        onDrop={handleDrop}
-        onClick={() => inputRef.current?.click()}
-        className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${
-          dragActive
-            ? 'border-cyan-400 bg-cyan-950/20'
-            : 'border-slate-700 bg-slate-900/50 hover:border-cyan-500/50 hover:bg-slate-900'
-        }`}
+    <div className="w-full">
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*,.heic"
+        onChange={handleFileChange}
+        className="hidden"
+      />
+      <button
+        type="button"
+        disabled={isConverting}
+        onClick={() => fileInputRef.current?.click()}
+        className="w-full border-2 border-dashed border-emerald-700/80 hover:border-amber-400 bg-emerald-950/40 p-8 rounded-2xl flex flex-col items-center justify-center transition group cursor-pointer"
       >
-        <input
-          ref={inputRef}
-          type="file"
-          accept="image/*,.heic,.HEIC"
-          className="hidden"
-          onChange={handleChange}
-        />
-
-        {loading ? (
-          <div className="flex flex-col items-center gap-3 py-6 text-cyan-400">
-            <Loader2 className="w-8 h-8 animate-spin" />
-            <p className="text-sm font-medium">Processing your image...</p>
-          </div>
-        ) : (
-          <div className="flex flex-col items-center gap-3 py-4 text-slate-300">
-            <div className="p-3 bg-slate-800 rounded-full text-cyan-400">
-              <Upload className="w-6 h-6" />
-            </div>
-            <div>
-              <p className="font-semibold text-white">Click to upload or drag & drop</p>
-              <p className="text-xs text-slate-400 mt-1">Supports PNG, JPG, and iPhone HEIC photos</p>
-            </div>
-          </div>
-        )}
-      </div>
+        <div className="w-12 h-12 rounded-full bg-emerald-900/60 border border-emerald-700 flex items-center justify-center text-amber-400 mb-3 group-hover:scale-110 transition">
+          {isConverting ? '⏳' : '📷'}
+        </div>
+        <p className="text-sm font-bold text-slate-100">
+          {isConverting ? 'Converting HEIC Photo...' : 'Click to Upload Profile Photo'}
+        </p>
+        <p className="text-xs text-emerald-300/70 mt-1">
+          Supports JPG, PNG, and iPhone HEIC photos
+        </p>
+      </button>
     </div>
   );
 }

@@ -49,7 +49,7 @@ export default function CardCanvas({
     img.src = userImage;
 
     img.onload = async () => {
-      // 1080 x 1350 High-Resolution Standard Ratio
+      // 1080 x 1350 Standard Social Pass Ratio
       canvas.width = 1080;
       canvas.height = 1350;
 
@@ -65,7 +65,7 @@ export default function CardCanvas({
       ctx.lineWidth = 18;
       ctx.strokeRect(24, 24, 1032, 1302);
 
-      // Event Branding
+      // Event Branding Header
       ctx.fillStyle = selectedTheme.primary;
       ctx.font = '900 46px Inter, sans-serif';
       ctx.textAlign = 'center';
@@ -73,7 +73,7 @@ export default function CardCanvas({
 
       ctx.fillStyle = '#fbbf24';
       ctx.font = 'bold 22px Inter, sans-serif';
-      ctx.fillText('OFFICIAL DIGITAL EVENT CREDENTIAL', 540, 138);
+      ctx.fillText('OFFICIAL DIGITAL BUILDER PASS', 540, 138);
 
       // Photo Frame & Clipping
       const photoSize = 460;
@@ -102,7 +102,7 @@ export default function CardCanvas({
       }
       ctx.stroke();
 
-      // Builder Name (Dominant Text Hierarchy)
+      // Builder Name (Dominant Typography)
       const displayName = name.trim().length > 22 ? `${name.trim().substring(0, 20)}...` : name.trim() || 'Ankan Mahanti';
       ctx.fillStyle = '#ffffff';
       ctx.font = '900 58px Inter, sans-serif';
@@ -130,7 +130,7 @@ export default function CardCanvas({
       ctx.font = 'bold 28px Inter, sans-serif';
       ctx.fillText(`⚡ ${role.trim() || 'Builder'}`, 540, 844);
 
-      // Real Scannable Verification QR Code Rendering
+      // Dynamic QR Code Rendering for Live Verification Engine
       const verifyUrl = `${window.location.origin}?verify=${autoId}&name=${encodeURIComponent(name)}&role=${encodeURIComponent(role)}`;
       try {
         const qrDataUrl = await QRCode.toDataURL(verifyUrl, { margin: 1, width: 170 });
@@ -146,18 +146,18 @@ export default function CardCanvas({
       // Credential Metadata Footer
       ctx.fillStyle = '#10b981';
       ctx.font = 'bold 26px Inter, sans-serif';
-      ctx.fillText(`CREDENTIAL ID: ${autoId}`, 540, 1140);
+      ctx.fillText(`BUILDER ID: ${autoId}`, 540, 1140);
 
       ctx.fillStyle = '#94a3b8';
       ctx.font = '20px Inter, sans-serif';
-      ctx.fillText('SCAN QR CODE TO VERIFY AUTHENTICITY', 540, 1180);
+      ctx.fillText('SCAN QR CODE TO VERIFY PASS', 540, 1180);
       ctx.fillText('#FrameInGoa • LESS NOISE. MORE SIGNAL.', 540, 1220);
     };
   }, [userImage, selectedTheme, name, role, handle, autoId]);
 
   const handleDownload = () => {
     if (!name.trim()) {
-      setValidationError('Please enter your full name before exporting.');
+      setValidationError('Please enter your full name before downloading.');
       return;
     }
     setValidationError('');
@@ -167,28 +167,36 @@ export default function CardCanvas({
     const image = canvas.toDataURL('image/png');
     const link = document.createElement('a');
     link.href = image;
-    link.download = `${autoId}_Builder_Pass.png`;
+    link.download = `${autoId}_HackerHouse_Goa_Pass.png`;
     link.click();
+  };
+
+  const handleShareToX = () => {
+    const shareText = encodeURIComponent(
+      `Just generated my official Builder Pass for Hacker House Goa 2026! 🌴🚀\n\nGenerate yours here: https://hh-goa-card-gen-eight.vercel.app/\n\n#FrameInGoa @HackerHouseGoa`
+    );
+    window.open(`https://twitter.com/intent/tweet?text=${shareText}`, '_blank');
   };
 
   return (
     <div className="w-full">
-      {/* Verification Modal */}
+      {/* Verification Dialog Modal */}
       {showVerificationModal && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
           <div className="bg-emerald-950 border-2 border-emerald-500/80 p-6 rounded-2xl max-w-md w-full text-center space-y-4 shadow-2xl">
             <div className="w-12 h-12 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto text-2xl font-bold">
               ✓
             </div>
-            <h3 className="text-xl font-bold text-amber-400">CREDENTIAL VERIFIED</h3>
-            <p className="text-xs text-emerald-200">Hacker House Goa 2026 Official Pass</p>
+            <h3 className="text-xl font-bold text-amber-400">PASS VERIFIED</h3>
+            <p className="text-xs text-emerald-200">Hacker House Goa 2026 Official Builder Pass</p>
             <div className="bg-slate-900/90 p-4 rounded-xl text-left text-xs space-y-2 border border-emerald-800">
               <div><span className="text-slate-400">Name:</span> <strong className="text-white">{name}</strong></div>
               <div><span className="text-slate-400">Role:</span> <strong className="text-amber-400">{role}</strong></div>
-              <div><span className="text-slate-400">ID:</span> <strong className="text-emerald-400 font-mono">{autoId}</strong></div>
-              <div><span className="text-slate-400">Status:</span> <strong className="text-emerald-400">🟢 Active & Valid</strong></div>
+              <div><span className="text-slate-400">Builder ID:</span> <strong className="text-emerald-400 font-mono">{autoId}</strong></div>
+              <div><span className="text-slate-400">Status:</span> <strong className="text-emerald-400">🟢 Active & Verified Attendee</strong></div>
             </div>
             <button
+              type="button"
               onClick={() => setShowVerificationModal(false)}
               className="w-full py-2.5 bg-amber-400 text-slate-950 font-bold rounded-xl text-xs hover:bg-amber-300 transition"
             >
@@ -206,6 +214,7 @@ export default function CardCanvas({
             <div className="bg-emerald-950/90 border border-emerald-800 p-6 rounded-2xl shadow-xl">
               {renderUploadSlot}
               <button
+                type="button"
                 onClick={() => setActiveStep(2)}
                 className="w-full mt-4 py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold rounded-xl text-sm transition shadow-lg"
               >
@@ -256,8 +265,9 @@ export default function CardCanvas({
 
               <div>
                 <div className="flex justify-between items-center">
-                  <label className="text-xs font-semibold text-emerald-300">System Credential ID</label>
+                  <label className="text-xs font-semibold text-emerald-300">System Builder ID</label>
                   <button
+                    type="button"
                     onClick={regenerateId}
                     className="text-xs text-amber-400 hover:underline font-semibold"
                   >
@@ -278,6 +288,7 @@ export default function CardCanvas({
                   {THEMES.map((theme) => (
                     <button
                       key={theme.id}
+                      type="button"
                       onClick={() => setSelectedTheme(theme)}
                       className={`p-2.5 rounded-xl border text-xs font-medium transition ${
                         selectedTheme.id === theme.id
@@ -292,10 +303,11 @@ export default function CardCanvas({
               </div>
 
               <button
+                type="button"
                 onClick={() => setActiveStep(3)}
                 className="w-full py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold rounded-xl text-sm transition shadow-lg mt-2"
               >
-                Preview Credential →
+                Preview Builder Pass →
               </button>
             </div>
           )}
@@ -303,14 +315,15 @@ export default function CardCanvas({
           {activeStep === 3 && (
             <div className="bg-emerald-950/90 border border-emerald-800 p-6 rounded-2xl shadow-xl space-y-4 text-left">
               <h3 className="text-xs font-bold text-amber-400 uppercase tracking-wider">
-                Step 3: Preview Credential
+                Step 3: Preview Pass
               </h3>
 
               <p className="text-xs text-emerald-200/80">
-                Review your official event pass on the right. You can test live QR verification before exporting.
+                Review your official pass on the right. You can test live QR verification before downloading or sharing.
               </p>
 
               <button
+                type="button"
                 onClick={() => setShowVerificationModal(true)}
                 className="w-full py-3 bg-emerald-900/90 border border-emerald-700 text-emerald-300 font-bold rounded-xl text-xs hover:bg-emerald-800 transition"
               >
@@ -318,13 +331,15 @@ export default function CardCanvas({
               </button>
 
               <button
+                type="button"
                 onClick={() => setActiveStep(4)}
                 className="w-full py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold rounded-xl text-sm transition shadow-lg"
               >
-                Continue to Export →
+                Continue to Download & Share →
               </button>
 
               <button
+                type="button"
                 onClick={() => setActiveStep(2)}
                 className="w-full py-2 text-xs text-emerald-400 hover:underline text-center block"
               >
@@ -336,7 +351,7 @@ export default function CardCanvas({
           {activeStep === 4 && (
             <div className="bg-emerald-950/90 border border-emerald-800 p-6 rounded-2xl shadow-xl space-y-4 text-left">
               <h3 className="text-xs font-bold text-amber-400 uppercase tracking-wider">
-                Step 4: Export & Share
+                Step 4: Download & Share
               </h3>
 
               {validationError && (
@@ -346,6 +361,7 @@ export default function CardCanvas({
               )}
 
               <button
+                type="button"
                 onClick={handleDownload}
                 className="w-full py-4 bg-gradient-to-r from-emerald-500 to-amber-400 text-slate-950 font-extrabold rounded-xl text-base shadow-xl hover:opacity-95 transition"
               >
@@ -353,18 +369,15 @@ export default function CardCanvas({
               </button>
 
               <button
-                onClick={() => {
-                  const text = encodeURIComponent(
-                    `Just verified my official Builder Pass for Hacker House Goa 2026! Credential ID: ${autoId} 🌴🚀 #FrameInGoa`
-                  );
-                  window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
-                }}
-                className="w-full py-3 bg-amber-400/10 border border-amber-400/40 text-amber-300 font-bold rounded-xl text-xs hover:bg-amber-400/20 transition"
+                type="button"
+                onClick={handleShareToX}
+                className="w-full py-3.5 bg-amber-400/10 border border-amber-400/40 text-amber-300 font-bold rounded-xl text-xs hover:bg-amber-400/20 transition flex items-center justify-center space-x-2"
               >
-                ↗ Share Credential
+                <span>𝕏 Share to X (#FrameInGoa)</span>
               </button>
 
               <button
+                type="button"
                 onClick={() => setActiveStep(3)}
                 className="w-full py-2 text-xs text-emerald-400 hover:underline text-center block"
               >
@@ -381,7 +394,7 @@ export default function CardCanvas({
           </div>
           <div className="flex items-center space-x-2 mt-3 text-xs text-emerald-300/80 font-mono">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>Verifiable Credential Engine Active</span>
+            <span>Verifiable Pass Engine Active</span>
           </div>
         </div>
       </div>
