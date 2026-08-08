@@ -41,7 +41,7 @@ export default function CardCanvas({
     setAutoId(`HHG26-${prefix}-${randomHex}`);
   };
 
-  // Separate QR code generation from canvas rendering
+  // Pre-generate QR code URL independently
   useEffect(() => {
     let cancelled = false;
     const generateQR = async () => {
@@ -59,7 +59,7 @@ export default function CardCanvas({
     };
   }, [autoId, name, role]);
 
-  // Main canvas render function
+  // Main canvas render callback
   const renderCard = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -69,11 +69,11 @@ export default function CardCanvas({
     canvas.width = 1080;
     canvas.height = 1350;
 
-    // Background
+    // Background Fill
     ctx.fillStyle = selectedTheme.bg;
     ctx.fillRect(0, 0, 1080, 1350);
 
-    // Geometry Accent
+    // Decorative Coastline Waves Accent
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.05)';
     ctx.lineWidth = 4;
     for (let i = 0; i < 5; i++) {
@@ -82,7 +82,7 @@ export default function CardCanvas({
       ctx.stroke();
     }
 
-    // Outer Border
+    // Border Frame
     const gradient = ctx.createLinearGradient(0, 0, 1080, 1350);
     gradient.addColorStop(0, selectedTheme.primary);
     gradient.addColorStop(1, selectedTheme.secondary);
@@ -100,15 +100,62 @@ export default function CardCanvas({
     ctx.font = 'bold 22px Inter, sans-serif';
     ctx.fillText('BUILDER PASS', 540, 138);
 
-    // Photo Box
+    // Photo Box Specifications
     const photoSize = 460;
     const photoX = (1080 - photoSize) / 2;
     const photoY = 175;
 
+    const drawTextAndFooter = () => {
+      // Builder Name
+      const displayName = name.trim().length > 22 ? `${name.trim().substring(0, 20)}...` : name.trim() || 'Ankan Mahanti';
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '900 58px Inter, sans-serif';
+      ctx.fillText(displayName.toUpperCase(), 540, 715);
+
+      // Twitter Handle
+      ctx.fillStyle = selectedTheme.primary;
+      ctx.font = '600 28px Inter, sans-serif';
+      ctx.fillText(handle.trim() || '@builder', 540, 760);
+
+      // Role Box
+      ctx.fillStyle = 'rgba(6, 44, 32, 0.95)';
+      ctx.beginPath();
+      if (typeof ctx.roundRect === 'function') {
+        ctx.roundRect(190, 800, 700, 68, 16);
+      } else {
+        ctx.rect(190, 800, 700, 68);
+      }
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(251, 191, 36, 0.4)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.fillStyle = '#fbbf24';
+      ctx.font = 'bold 28px Inter, sans-serif';
+      ctx.fillText((role.trim() || 'BUILDER').toUpperCase(), 540, 844);
+
+      // Draw QR Code
+      if (qrDataUrl) {
+        const qrImg = new Image();
+        qrImg.onload = () => {
+          ctx.drawImage(qrImg, 455, 915, 170, 170);
+        };
+        qrImg.src = qrDataUrl;
+      }
+
+      // Metadata Footer
+      ctx.fillStyle = '#10b981';
+      ctx.font = 'bold 26px Inter, sans-serif';
+      ctx.fillText(autoId, 540, 1140);
+
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '20px Inter, sans-serif';
+      ctx.fillText('SCAN TO VERIFY', 540, 1180);
+      ctx.fillText('LESS NOISE. MORE SIGNAL.', 540, 1220);
+    };
+
     if (userImage) {
       const img = new Image();
-      img.crossOrigin = 'anonymous';
-      img.src = userImage;
       img.onload = () => {
         ctx.save();
         ctx.beginPath();
@@ -131,7 +178,13 @@ export default function CardCanvas({
           ctx.rect(photoX, photoY, photoSize, photoSize);
         }
         ctx.stroke();
+
+        drawTextAndFooter();
       };
+      img.onerror = () => {
+        drawTextAndFooter();
+      };
+      img.src = userImage;
     } else {
       // Empty-State Placeholder Frame
       ctx.fillStyle = 'rgba(6, 44, 32, 0.6)';
@@ -143,62 +196,13 @@ export default function CardCanvas({
       ctx.fillStyle = '#94a3b8';
       ctx.font = '600 24px Inter, sans-serif';
       ctx.fillText('YOUR PHOTO WILL APPEAR HERE', 540, photoY + photoSize / 2);
+
+      drawTextAndFooter();
     }
-
-    // Name Typography
-    const displayName = name.trim().length > 22 ? `${name.trim().substring(0, 20)}...` : name.trim() || 'Ankan Mahanti';
-    ctx.fillStyle = '#ffffff';
-    ctx.font = '900 58px Inter, sans-serif';
-    ctx.fillText(displayName.toUpperCase(), 540, 715);
-
-    // Twitter Handle
-    ctx.fillStyle = selectedTheme.primary;
-    ctx.font = '600 28px Inter, sans-serif';
-    ctx.fillText(handle.trim() || '@builder', 540, 760);
-
-    // Role Box
-    ctx.fillStyle = 'rgba(6, 44, 32, 0.95)';
-    ctx.beginPath();
-    if (typeof ctx.roundRect === 'function') {
-      ctx.roundRect(190, 800, 700, 68, 16);
-    } else {
-      ctx.rect(190, 800, 700, 68);
-    }
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(251, 191, 36, 0.4)';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-
-    ctx.fillStyle = '#fbbf24';
-    ctx.font = 'bold 28px Inter, sans-serif';
-    ctx.fillText((role.trim() || 'BUILDER').toUpperCase(), 540, 844);
-
-    // Draw Pre-rendered QR Code
-    if (qrDataUrl) {
-      const qrImg = new Image();
-      qrImg.onload = () => {
-        ctx.drawImage(qrImg, 455, 915, 170, 170);
-      };
-      qrImg.src = qrDataUrl;
-    }
-
-    // Pass Footer Details
-    ctx.fillStyle = '#10b981';
-    ctx.font = 'bold 26px Inter, sans-serif';
-    ctx.fillText(autoId, 540, 1140);
-
-    ctx.fillStyle = '#94a3b8';
-    ctx.font = '20px Inter, sans-serif';
-    ctx.fillText('SCAN TO VERIFY', 540, 1180);
-    ctx.fillText('LESS NOISE. MORE SIGNAL.', 540, 1220);
   }, [userImage, selectedTheme, name, role, handle, autoId, qrDataUrl]);
 
-  // Debounced canvas rendering (150ms timeout to avoid stutter during typing)
   useEffect(() => {
-    const timer = window.setTimeout(() => {
-      renderCard();
-    }, 150);
-    return () => window.clearTimeout(timer);
+    renderCard();
   }, [renderCard]);
 
   const handleDownload = () => {
