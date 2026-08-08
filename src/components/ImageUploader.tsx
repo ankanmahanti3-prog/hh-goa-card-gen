@@ -25,7 +25,7 @@ export default function ImageUploader({ onImageSelected }: ImageUploaderProps) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Reset input value so re-uploading the same file triggers change
+    // Reset input value so re-uploading the same file triggers change event
     e.target.value = '';
 
     try {
@@ -51,7 +51,7 @@ export default function ImageUploader({ onImageSelected }: ImageUploaderProps) {
     } catch (error) {
       console.error('Image processing failed:', error);
       alert('Could not process this photo. Please try JPG, PNG, or HEIC.');
-    } font-bold {
+    } finally {
       setIsProcessing(false);
     }
   };
