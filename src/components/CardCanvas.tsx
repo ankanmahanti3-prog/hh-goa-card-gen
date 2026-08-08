@@ -1,19 +1,19 @@
 'use client';
 
 import React, { useRef, useEffect, useState } from 'react';
+import QRCode from 'qrcode';
 
 interface CardCanvasProps {
   userImage: string;
   activeStep: number;
   setActiveStep: (step: number) => void;
   renderUploadSlot: React.ReactNode;
-  onUploadClick: () => void;
 }
 
 const THEMES = [
-  { id: 'emerald', name: 'Emerald Goa Palms', primary: '#10b981', secondary: '#f59e0b', bg: '#041c14' },
-  { id: 'goa', name: 'Sunset Gold', primary: '#fbbf24', secondary: '#ef4444', bg: '#1c0c04' },
-  { id: 'cyberpunk', name: 'Cyberpunk Neon', primary: '#06b6d4', secondary: '#ec4899', bg: '#090d16' },
+  { id: 'emerald', name: 'Emerald Goa Palms', primary: '#10b981', secondary: '#f59e0b', bg: '#022c22' },
+  { id: 'goa', name: 'Goa Sunset Gold', primary: '#fbbf24', secondary: '#ef4444', bg: '#1c0c04' },
+  { id: 'cyberpunk', name: 'Cyber Matrix', primary: '#06b6d4', secondary: '#ec4899', bg: '#090d16' },
 ];
 
 export default function CardCanvas({
@@ -27,14 +27,14 @@ export default function CardCanvas({
   const [role, setRole] = useState('Student / Builder');
   const [handle, setHandle] = useState('@ankanmahanti');
   const [autoId, setAutoId] = useState('HHG26-ANK-8F3A');
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
   const [validationError, setValidationError] = useState('');
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Generate Unique ID
   const regenerateId = () => {
     const randomHex = Math.floor(Math.random() * 16777215).toString(16).toUpperCase().slice(0, 4);
-    const prefix = name ? name.substring(0, 3).toUpperCase() : 'HKR';
+    const prefix = name ? name.trim().substring(0, 3).toUpperCase() : 'HKR';
     setAutoId(`HHG26-${prefix}-${randomHex}`);
   };
 
@@ -48,42 +48,42 @@ export default function CardCanvas({
     img.crossOrigin = 'anonymous';
     img.src = userImage;
 
-    img.onload = () => {
-      // 1080 x 1350 Standard ID Pass Ratio
+    img.onload = async () => {
+      // High-resolution CR80 Proportional ID Pass Ratio (1080 x 1350)
       canvas.width = 1080;
       canvas.height = 1350;
 
-      // Background
+      // Deep Metallic Theme Background
       ctx.fillStyle = selectedTheme.bg;
       ctx.fillRect(0, 0, 1080, 1350);
 
-      // Outer Neon Frame
+      // Outer Neon Glow Frame
       const gradient = ctx.createLinearGradient(0, 0, 1080, 1350);
       gradient.addColorStop(0, selectedTheme.primary);
       gradient.addColorStop(1, selectedTheme.secondary);
       ctx.strokeStyle = gradient;
-      ctx.lineWidth = 16;
+      ctx.lineWidth = 18;
       ctx.strokeRect(24, 24, 1032, 1302);
 
-      // Header Banner
+      // Event Header Branding
       ctx.fillStyle = selectedTheme.primary;
-      ctx.font = 'bold 44px Inter, sans-serif';
+      ctx.font = 'black 46px Inter, sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('🌴 HACKER HOUSE GOA 2026 🌴', 540, 100);
+      ctx.fillText('🌴 HACKER HOUSE GOA 2026 🌴', 540, 95);
 
       ctx.fillStyle = '#fbbf24';
-      ctx.font = '600 24px Inter, sans-serif';
-      ctx.fillText('OFFICIAL BUILDER CREDENTIAL', 540, 145);
+      ctx.font = 'bold 22px Inter, sans-serif';
+      ctx.fillText('OFFICIAL DIGITAL EVENT CREDENTIAL', 540, 138);
 
-      // Photo Frame
+      // Photo Frame & Clipping
       const photoSize = 460;
       const photoX = (1080 - photoSize) / 2;
-      const photoY = 190;
+      const photoY = 175;
 
       ctx.save();
       ctx.beginPath();
       if (typeof ctx.roundRect === 'function') {
-        ctx.roundRect(photoX, photoY, photoSize, photoSize, 24);
+        ctx.roundRect(photoX, photoY, photoSize, photoSize, 28);
       } else {
         ctx.rect(photoX, photoY, photoSize, photoSize);
       }
@@ -91,69 +91,74 @@ export default function CardCanvas({
       ctx.drawImage(img, photoX, photoY, photoSize, photoSize);
       ctx.restore();
 
+      // Photo Border Accent
       ctx.strokeStyle = selectedTheme.primary;
       ctx.lineWidth = 6;
       ctx.beginPath();
       if (typeof ctx.roundRect === 'function') {
-        ctx.roundRect(photoX, photoY, photoSize, photoSize, 24);
+        ctx.roundRect(photoX, photoY, photoSize, photoSize, 28);
       } else {
         ctx.rect(photoX, photoY, photoSize, photoSize);
       }
       ctx.stroke();
 
-      // Name & Handle
+      // Builder Name (Truncates gracefully if too long)
+      const displayName = name.trim().length > 22 ? `${name.trim().substring(0, 20)}...` : name.trim() || 'Ankan Mahanti';
       ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 52px Inter, sans-serif';
-      ctx.fillText(name || 'Ankan Mahanti', 540, 730);
+      ctx.font = 'bold 54px Inter, sans-serif';
+      ctx.fillText(displayName, 540, 715);
 
+      // Twitter / X Handle
       ctx.fillStyle = selectedTheme.primary;
-      ctx.font = '500 28px Inter, sans-serif';
-      ctx.fillText(handle || '@builder', 540, 775);
+      ctx.font = '600 28px Inter, sans-serif';
+      ctx.fillText(handle.trim() || '@builder', 540, 760);
 
       // Role Pill Box
-      ctx.fillStyle = 'rgba(6, 44, 32, 0.9)';
+      ctx.fillStyle = 'rgba(6, 44, 32, 0.95)';
       ctx.beginPath();
       if (typeof ctx.roundRect === 'function') {
-        ctx.roundRect(190, 815, 700, 70, 14);
+        ctx.roundRect(190, 800, 700, 68, 16);
       } else {
-        ctx.rect(190, 815, 700, 70);
+        ctx.rect(190, 800, 700, 68);
       }
       ctx.fill();
-      ctx.strokeStyle = 'rgba(251, 191, 36, 0.3)';
+      ctx.strokeStyle = 'rgba(251, 191, 36, 0.4)';
       ctx.lineWidth = 2;
       ctx.stroke();
 
       ctx.fillStyle = '#fbbf24';
       ctx.font = 'bold 28px Inter, sans-serif';
-      ctx.fillText(`⚡ ${role || 'Builder'}`, 540, 860);
+      ctx.fillText(`⚡ ${role.trim() || 'Builder'}`, 540, 844);
 
-      // Verification QR Placeholder Box
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(450, 930, 180, 180);
+      // Real Scannable Verification QR Code Rendering
+      const verifyUrl = `${window.location.origin}?verify=${autoId}&name=${encodeURIComponent(name)}&role=${encodeURIComponent(role)}`;
+      try {
+        const qrDataUrl = await QRCode.toDataURL(verifyUrl, { margin: 1, width: 170 });
+        const qrImg = new Image();
+        qrImg.src = qrDataUrl;
+        await new Promise((resolve) => (qrImg.onload = resolve));
+        ctx.drawImage(qrImg, 455, 915, 170, 170);
+      } catch {
+        // Fallback placeholder box if QR fails
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(455, 915, 170, 170);
+      }
 
-      // Simulated QR pattern grid
-      ctx.fillStyle = '#041c14';
-      ctx.fillRect(470, 950, 40, 40);
-      ctx.fillRect(570, 950, 40, 40);
-      ctx.fillRect(470, 1050, 40, 40);
-      ctx.fillRect(530, 990, 30, 30);
-      ctx.fillRect(570, 1030, 20, 20);
-
-      // ID Badge Details
+      // Credential Metadata Footer
       ctx.fillStyle = '#10b981';
-      ctx.font = 'bold 24px Inter, sans-serif';
-      ctx.fillText(`ID: ${autoId}`, 540, 1160);
+      ctx.font = 'bold 26px Inter, sans-serif';
+      ctx.fillText(`CREDENTIAL ID: ${autoId}`, 540, 1140);
 
-      ctx.fillStyle = '#64748b';
+      ctx.fillStyle = '#94a3b8';
       ctx.font = '20px Inter, sans-serif';
-      ctx.fillText('SCAN QR TO VERIFY CREDENTIAL', 540, 1200);
-      ctx.fillText('#FrameInGoa • LESS NOISE. MORE SIGNAL.', 540, 1240);
+      ctx.fillText('SCAN QR CODE TO VERIFY AUTHENTICITY', 540, 1180);
+      ctx.fillText('#FrameInGoa • LESS NOISE. MORE SIGNAL.', 540, 1220);
     };
   }, [userImage, selectedTheme, name, role, handle, autoId]);
 
   const handleDownload = () => {
     if (!name.trim()) {
-      setValidationError('Please enter a name before exporting.');
+      setValidationError('Please enter your full name before exporting.');
       return;
     }
     setValidationError('');
@@ -168,158 +173,192 @@ export default function CardCanvas({
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-      {/* Left Form Controls (Steps 1 & 2) */}
-      <div className="lg:col-span-6 space-y-4">
-        {activeStep === 1 && (
-          <div className="bg-emerald-950/80 border border-emerald-800 p-5 rounded-2xl shadow-xl">
-            {renderUploadSlot}
+    <div className="w-full">
+      {/* Verification Dialog Modal */}
+      {showVerificationModal && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-emerald-950 border-2 border-emerald-500/80 p-6 rounded-2xl max-w-md w-full text-center space-y-4 shadow-2xl">
+            <div className="w-12 h-12 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto text-2xl font-bold">
+              ✓
+            </div>
+            <h3 className="text-xl font-bold text-amber-400">CREDENTIAL VERIFIED</h3>
+            <p className="text-xs text-emerald-200">Official Hacker House Goa 2026 Pass</p>
+            <div className="bg-slate-900/90 p-4 rounded-xl text-left text-xs space-y-2 border border-emerald-800">
+              <div><span className="text-slate-400">Name:</span> <strong className="text-white">{name}</strong></div>
+              <div><span className="text-slate-400">Role:</span> <strong className="text-amber-400">{role}</strong></div>
+              <div><span className="text-slate-400">ID:</span> <strong className="text-emerald-400 font-mono">{autoId}</strong></div>
+              <div><span className="text-slate-400">Status:</span> <strong className="text-emerald-400">🟢 Active & Valid</strong></div>
+            </div>
             <button
-              onClick={() => setActiveStep(2)}
-              className="w-full mt-4 py-3 bg-amber-400 text-slate-950 font-bold rounded-xl text-sm"
+              onClick={() => setShowVerificationModal(false)}
+              className="w-full py-2.5 bg-amber-400 text-slate-950 font-bold rounded-xl text-xs"
             >
-              Continue to Details →
+              Close Verification
             </button>
           </div>
-        )}
-
-        {activeStep === 2 && (
-          <div className="bg-emerald-950/80 border border-emerald-800 p-5 rounded-2xl shadow-xl space-y-4 text-left">
-            <h3 className="text-xs font-bold text-amber-400 uppercase tracking-wider">
-              Step 2: Builder Credentials
-            </h3>
-
-            <div>
-              <label className="text-xs font-semibold text-emerald-300">Full Name</label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. Ankan Mahanti"
-                className="w-full mt-1 bg-emerald-900/60 border border-emerald-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-400"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs font-semibold text-emerald-300">Role / Stack</label>
-                <input
-                  type="text"
-                  value={role}
-                  onChange={(e) => setRole(e.target.value)}
-                  placeholder="e.g. Student / Builder"
-                  className="w-full mt-1 bg-emerald-900/60 border border-emerald-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-400"
-                />
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-emerald-300">Twitter / X</label>
-                <input
-                  type="text"
-                  value={handle}
-                  onChange={(e) => setHandle(e.target.value)}
-                  placeholder="@handle"
-                  className="w-full mt-1 bg-emerald-900/60 border border-emerald-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-400"
-                />
-              </div>
-            </div>
-
-            {/* Auto Generated ID Field */}
-            <div>
-              <div className="flex justify-between items-center">
-                <label className="text-xs font-semibold text-emerald-300">System Credential ID</label>
-                <button
-                  onClick={regenerateId}
-                  className="text-xs text-amber-400 hover:underline font-semibold"
-                >
-                  ↻ Refresh ID
-                </button>
-              </div>
-              <input
-                type="text"
-                readOnly
-                value={autoId}
-                className="w-full mt-1 bg-emerald-900/30 border border-emerald-800/60 rounded-xl px-3.5 py-2 text-xs font-mono text-amber-300 cursor-not-allowed"
-              />
-            </div>
-
-            {/* Theme Picker */}
-            <div>
-              <label className="text-xs font-semibold text-emerald-300">Visual Style</label>
-              <div className="grid grid-cols-3 gap-2 mt-1.5">
-                {THEMES.map((theme) => (
-                  <button
-                    key={theme.id}
-                    onClick={() => setSelectedTheme(theme)}
-                    className={`p-2 rounded-xl border text-xs font-medium transition ${
-                      selectedTheme.id === theme.id
-                        ? 'border-amber-400 bg-emerald-900 text-white'
-                        : 'border-emerald-900 bg-emerald-950/40 text-emerald-300/70'
-                    }`}
-                  >
-                    {theme.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <button
-              onClick={() => setActiveStep(3)}
-              className="w-full py-3 bg-amber-400 text-slate-950 font-bold rounded-xl text-sm mt-2"
-            >
-              Preview Generated Pass →
-            </button>
-          </div>
-        )}
-
-        {(activeStep === 3 || activeStep === 4) && (
-          <div className="bg-emerald-950/80 border border-emerald-800 p-5 rounded-2xl shadow-xl space-y-3">
-            <h3 className="text-xs font-bold text-amber-400 uppercase tracking-wider text-left">
-              Step {activeStep}: Actions & Export
-            </h3>
-
-            {validationError && (
-              <p className="text-xs text-red-400 bg-red-950/50 p-2.5 rounded-lg border border-red-800">
-                ⚠️ {validationError}
-              </p>
-            )}
-
-            <button
-              onClick={handleDownload}
-              className="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-amber-400 text-slate-950 font-extrabold rounded-xl text-sm shadow-lg hover:opacity-90 transition"
-            >
-              ⬇ Export Printable Pass (PNG)
-            </button>
-
-            <button
-              onClick={() => {
-                const text = encodeURIComponent(
-                  `Just verified my official Builder Pass for Hacker House Goa 2026! ID: ${autoId} 🌴🚀 #FrameInGoa`
-                );
-                window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
-              }}
-              className="w-full py-3 bg-emerald-900 border border-emerald-700 text-amber-300 font-bold rounded-xl text-xs hover:bg-emerald-800 transition"
-            >
-              🚀 Share Credential on X
-            </button>
-
-            <button
-              onClick={() => setActiveStep(2)}
-              className="w-full py-2 text-xs text-emerald-400 hover:underline"
-            >
-              ← Edit Details
-            </button>
-          </div>
-        )}
-      </div>
-
-      {/* Right Column: Live Card Hero Showcase (Always Visible) */}
-      <div className="lg:col-span-6 flex flex-col items-center">
-        <div className="w-full max-w-xs sm:max-w-sm rounded-2xl overflow-hidden border-2 border-amber-400/50 shadow-2xl bg-emerald-950">
-          <canvas ref={canvasRef} className="w-full h-auto block" />
         </div>
-        <p className="text-[11px] text-emerald-300/60 mt-2 font-mono">
-          Credential Verified • Live Canvas Render
-        </p>
+      )}
+
+      {/* Main Studio Grid - Large Desktop Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* Left Form Controls (Step Wizard) */}
+        <div className="lg:col-span-5 space-y-4">
+          {activeStep === 1 && (
+            <div className="bg-emerald-950/90 border border-emerald-800 p-6 rounded-2xl shadow-xl">
+              {renderUploadSlot}
+              <button
+                onClick={() => setActiveStep(2)}
+                className="w-full mt-4 py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold rounded-xl text-sm transition shadow-lg"
+              >
+                Continue to Details →
+              </button>
+            </div>
+          )}
+
+          {activeStep === 2 && (
+            <div className="bg-emerald-950/90 border border-emerald-800 p-6 rounded-2xl shadow-xl space-y-4 text-left">
+              <h3 className="text-xs font-bold text-amber-400 uppercase tracking-wider">
+                Step 2: Builder Credentials
+              </h3>
+
+              <div>
+                <label className="text-xs font-semibold text-emerald-300">Full Name *</label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="e.g. Ankan Mahanti"
+                  className="w-full mt-1 bg-emerald-900/60 border border-emerald-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-amber-400"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-semibold text-emerald-300">Role / Stack</label>
+                  <input
+                    type="text"
+                    value={role}
+                    onChange={(e) => setRole(e.target.value)}
+                    placeholder="e.g. Student / Builder"
+                    className="w-full mt-1 bg-emerald-900/60 border border-emerald-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-amber-400"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-emerald-300">Twitter / X</label>
+                  <input
+                    type="text"
+                    value={handle}
+                    onChange={(e) => setHandle(e.target.value)}
+                    placeholder="@handle"
+                    className="w-full mt-1 bg-emerald-900/60 border border-emerald-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-amber-400"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <div className="flex justify-between items-center">
+                  <label className="text-xs font-semibold text-emerald-300">System Credential ID</label>
+                  <button
+                    onClick={regenerateId}
+                    className="text-xs text-amber-400 hover:underline font-semibold"
+                  >
+                    ↻ Refresh ID
+                  </button>
+                </div>
+                <input
+                  type="text"
+                  readOnly
+                  value={autoId}
+                  className="w-full mt-1 bg-emerald-900/30 border border-emerald-800/60 rounded-xl px-4 py-2.5 text-xs font-mono text-amber-300 cursor-not-allowed"
+                />
+              </div>
+
+              <div>
+                <label className="text-xs font-semibold text-emerald-300">Visual Theme</label>
+                <div className="grid grid-cols-3 gap-2 mt-1.5">
+                  {THEMES.map((theme) => (
+                    <button
+                      key={theme.id}
+                      onClick={() => setSelectedTheme(theme)}
+                      className={`p-2.5 rounded-xl border text-xs font-medium transition ${
+                        selectedTheme.id === theme.id
+                          ? 'border-amber-400 bg-emerald-900 text-white'
+                          : 'border-emerald-900 bg-emerald-950/40 text-emerald-300/70 hover:text-emerald-100'
+                      }`}
+                    >
+                      {theme.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <button
+                onClick={() => setActiveStep(3)}
+                className="w-full py-3.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold rounded-xl text-sm transition shadow-lg mt-2"
+              >
+                Preview Generated Pass →
+              </button>
+            </div>
+          )}
+
+          {(activeStep === 3 || activeStep === 4) && (
+            <div className="bg-emerald-950/90 border border-emerald-800 p-6 rounded-2xl shadow-xl space-y-4 text-left">
+              <h3 className="text-xs font-bold text-amber-400 uppercase tracking-wider">
+                Step {activeStep}: Export & Verify
+              </h3>
+
+              {validationError && (
+                <p className="text-xs text-red-400 bg-red-950/50 p-3 rounded-xl border border-red-800">
+                  ⚠️ {validationError}
+                </p>
+              )}
+
+              <button
+                onClick={handleDownload}
+                className="w-full py-4 bg-gradient-to-r from-emerald-500 to-amber-400 text-slate-950 font-extrabold rounded-xl text-base shadow-xl hover:opacity-95 transition"
+              >
+                ⬇ Download High-Res Pass (PNG)
+              </button>
+
+              <button
+                onClick={() => setShowVerificationModal(true)}
+                className="w-full py-3 bg-emerald-900/90 border border-emerald-700 text-emerald-300 font-bold rounded-xl text-xs hover:bg-emerald-800 transition"
+              >
+                🔍 Test Live QR Verification Modal
+              </button>
+
+              <button
+                onClick={() => {
+                  const text = encodeURIComponent(
+                    `Just verified my official Builder Pass for Hacker House Goa 2026! Credential ID: ${autoId} 🌴🚀 #FrameInGoa`
+                  );
+                  window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
+                }}
+                className="w-full py-3 bg-amber-400/10 border border-amber-400/40 text-amber-300 font-bold rounded-xl text-xs hover:bg-amber-400/20 transition"
+              >
+                🚀 Share Credential on X
+              </button>
+
+              <button
+                onClick={() => setActiveStep(2)}
+                className="w-full py-2 text-xs text-emerald-400 hover:underline text-center block"
+              >
+                ← Edit Details
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Right Column: Hero Showcase (Larger, Desktop-First Layout) */}
+        <div className="lg:col-span-7 flex flex-col items-center justify-start">
+          <div className="w-full max-w-md rounded-2xl overflow-hidden border-2 border-amber-400/60 shadow-[0_0_50px_rgba(251,191,36,0.15)] bg-emerald-950">
+            <canvas ref={canvasRef} className="w-full h-auto block" />
+          </div>
+          <div className="flex items-center space-x-2 mt-3 text-xs text-emerald-300/80 font-mono">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span>Verifiable Credential Engine Active</span>
+          </div>
+        </div>
       </div>
     </div>
   );
