@@ -154,19 +154,19 @@ export default function Home() {
 
           {/* Right Header Badges */}
           <div className="flex items-center gap-4">
-            {/* Live Ticking Studio Clock with Doodle Font Style */}
-            <div className="hidden sm:flex flex-col items-center justify-center bg-[#080808] border-2 border-[#FFD52E]/60 px-4 py-1 rounded-xl shadow-lg leading-tight">
+            {/* Refined Live Doodle Clock Badge */}
+            <div className="hidden sm:flex flex-col items-center justify-center bg-[#01120d] px-3 py-1 rounded-xl border border-amber-400/30 leading-none">
               <span 
-                style={{ fontFamily: "'Permanent Marker', cursive" }} 
-                className="text-2xl text-[#FFD52E] tracking-wider"
+                style={{ fontFamily: "'Caveat Brush', cursive" }} 
+                className="text-2xl text-[#FFD52E] tracking-wide"
               >
-                {currentTime || '10:13 PM'}
+                {currentTime || '10:15 PM'}
               </span>
               <span 
-                style={{ fontFamily: "'Permanent Marker', cursive" }}
-                className="text-[11px] text-[#FFD52E] tracking-widest uppercase -mt-1"
+                style={{ fontFamily: "'Caveat Brush', cursive" }}
+                className="text-[11px] text-[#FFD52E] tracking-widest uppercase -mt-0.5"
               >
-                STUDIO
+                STUDIO TIME
               </span>
             </div>
 
