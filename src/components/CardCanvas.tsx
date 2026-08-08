@@ -7,10 +7,10 @@ interface CardCanvasProps {
 }
 
 const THEMES = [
-  { id: 'cyberpunk', name: 'Sunset Cyberpunk', primary: '#06b6d4', secondary: '#f43f5e', bg: '#090d16' },
-  { id: 'emerald', name: 'Emerald Palms', primary: '#10b981', secondary: '#3b82f6', bg: '#061412' },
-  { id: 'matrix', name: 'Neon Matrix', primary: '#22c55e', secondary: '#a855f7', bg: '#020d08' },
-  { id: 'goa', name: 'Goa Golden Hour', primary: '#eab308', secondary: '#f97316', bg: '#120a05' },
+  { id: 'emerald', name: 'Emerald Goa Palms', primary: '#10b981', secondary: '#f59e0b', bg: '#041c14' },
+  { id: 'goa', name: 'Goa Sunset Gold', primary: '#fbbf24', secondary: '#ef4444', bg: '#1c0c04' },
+  { id: 'cyberpunk', name: 'Neon Cyberpunk', primary: '#06b6d4', secondary: '#ec4899', bg: '#090d16' },
+  { id: 'matrix', name: 'Hacker Matrix', primary: '#22c55e', secondary: '#10b981', bg: '#020d08' },
 ];
 
 const STACK_OPTIONS = ['Full-Stack', 'AI / ML', 'Web3 / Solana', 'Rust', 'UI / UX', 'DevOps'];
@@ -25,8 +25,8 @@ const FUN_TITLES = [
 ];
 
 export default function CardCanvas({ userImage }: CardCanvasProps) {
-  const [activeTab, setActiveTab] = useState<'frame' | 'idcard'>('idcard');
-  const [selectedTheme, setSelectedTheme] = useState(THEMES[0]);
+  const [activeTab, setActiveTab] = useState<'idcard' | 'frame'>('idcard');
+  const [selectedTheme, setSelectedTheme] = useState(THEMES[0]); // Defaults to Emerald Goa Palms
   const [name, setName] = useState('Ankan Mahanti');
   const [handle, setHandle] = useState('@ankanmahanti');
   const [selectedStacks, setSelectedStacks] = useState<string[]>(['Full-Stack', 'AI / ML']);
@@ -61,10 +61,8 @@ export default function CardCanvas({ userImage }: CardCanvasProps) {
         canvas.width = 1080;
         canvas.height = 1080;
 
-        // User Image
         ctx.drawImage(img, 0, 0, 1080, 1080);
 
-        // Gradient Frame Overlay
         const gradient = ctx.createLinearGradient(0, 0, 1080, 1080);
         gradient.addColorStop(0, selectedTheme.primary);
         gradient.addColorStop(1, selectedTheme.secondary);
@@ -73,8 +71,7 @@ export default function CardCanvas({ userImage }: CardCanvasProps) {
         ctx.lineWidth = 36;
         ctx.strokeRect(18, 18, 1044, 1044);
 
-        // Bottom Banner Overlay
-        ctx.fillStyle = 'rgba(9, 13, 22, 0.88)';
+        ctx.fillStyle = 'rgba(4, 28, 20, 0.92)';
         ctx.fillRect(0, 880, 1080, 200);
 
         ctx.fillStyle = '#ffffff';
@@ -91,11 +88,9 @@ export default function CardCanvas({ userImage }: CardCanvasProps) {
         canvas.width = 1080;
         canvas.height = 1350;
 
-        // Background
         ctx.fillStyle = selectedTheme.bg;
         ctx.fillRect(0, 0, 1080, 1350);
 
-        // Neon Glow Border
         const gradient = ctx.createLinearGradient(0, 0, 1080, 1350);
         gradient.addColorStop(0, selectedTheme.primary);
         gradient.addColorStop(1, selectedTheme.secondary);
@@ -103,17 +98,15 @@ export default function CardCanvas({ userImage }: CardCanvasProps) {
         ctx.lineWidth = 14;
         ctx.strokeRect(24, 24, 1032, 1302);
 
-        // Header Title
         ctx.fillStyle = selectedTheme.primary;
         ctx.font = 'bold 42px Inter, sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText('HACKER HOUSE GOA 2026', 540, 100);
+        ctx.fillText('🌴 HACKER HOUSE GOA 2026 🌴', 540, 100);
 
-        ctx.fillStyle = '#94a3b8';
-        ctx.font = '500 24px Inter, sans-serif';
+        ctx.fillStyle = '#fbbf24';
+        ctx.font = '600 24px Inter, sans-serif';
         ctx.fillText('OFFICIAL BUILDER PASS • 28 - 31 OCT 2026', 540, 140);
 
-        // Photo Frame
         const photoSize = 480;
         const photoX = (1080 - photoSize) / 2;
         const photoY = 180;
@@ -129,7 +122,6 @@ export default function CardCanvas({ userImage }: CardCanvasProps) {
         ctx.drawImage(img, photoX, photoY, photoSize, photoSize);
         ctx.restore();
 
-        // Photo Border
         ctx.strokeStyle = selectedTheme.primary;
         ctx.lineWidth = 6;
         ctx.beginPath();
@@ -140,17 +132,15 @@ export default function CardCanvas({ userImage }: CardCanvasProps) {
         }
         ctx.stroke();
 
-        // Builder Name & Handle
         ctx.fillStyle = '#ffffff';
         ctx.font = 'bold 54px Inter, sans-serif';
-        ctx.fillText(name || 'Anonymous Builder', 540, 740);
+        ctx.fillText(name || 'Ankan Mahanti', 540, 740);
 
         ctx.fillStyle = selectedTheme.primary;
         ctx.font = '500 28px Inter, sans-serif';
-        ctx.fillText(handle || '@builder', 540, 785);
+        ctx.fillText(handle || '@ankanmahanti', 540, 785);
 
-        // Fun Title Badge Box
-        ctx.fillStyle = 'rgba(30, 41, 59, 0.8)';
+        ctx.fillStyle = 'rgba(6, 44, 32, 0.9)';
         ctx.beginPath();
         if (typeof ctx.roundRect === 'function') {
           ctx.roundRect(140, 825, 800, 80, 16);
@@ -158,15 +148,14 @@ export default function CardCanvas({ userImage }: CardCanvasProps) {
           ctx.rect(140, 825, 800, 80);
         }
         ctx.fill();
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+        ctx.strokeStyle = 'rgba(251, 191, 36, 0.3)';
         ctx.lineWidth = 2;
         ctx.stroke();
 
-        ctx.fillStyle = '#f8fafc';
+        ctx.fillStyle = '#fbbf24';
         ctx.font = 'bold 30px Inter, sans-serif';
         ctx.fillText(`⚡ ${builderTitle}`, 540, 875);
 
-        // Tech Stack Badges
         if (selectedStacks.length > 0) {
           const totalWidth = selectedStacks.length * 200;
           let startX = (1080 - totalWidth) / 2 + 100;
@@ -181,7 +170,7 @@ export default function CardCanvas({ userImage }: CardCanvasProps) {
             }
             ctx.fill();
 
-            ctx.fillStyle = '#090d16';
+            ctx.fillStyle = '#041c14';
             ctx.font = 'bold 20px Inter, sans-serif';
             ctx.fillText(stack, startX, 971);
 
@@ -189,8 +178,7 @@ export default function CardCanvas({ userImage }: CardCanvasProps) {
           });
         }
 
-        // Footer Metadata & Hashtags
-        ctx.fillStyle = '#64748b';
+        ctx.fillStyle = '#10b981';
         ctx.font = '22px Inter, sans-serif';
         ctx.fillText('BUILDER ID: #2026-GOA-HKR', 540, 1220);
         ctx.fillText('#FrameInGoa • LESS NOISE. MORE SIGNAL.', 540, 1260);
@@ -210,21 +198,21 @@ export default function CardCanvas({ userImage }: CardCanvasProps) {
 
   const handleShareToX = () => {
     const text = encodeURIComponent(
-      `Just generated my official Builder Pass for Hacker House Goa 2026! 🚀\n\nSee you in Goa! #FrameInGoa @HackerHouseGoa`
+      `Just generated my official Builder Pass for Hacker House Goa 2026! 🌴🚀\n\nSee you in Goa! #FrameInGoa @HackerHouseGoa`
     );
     window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
   };
 
   return (
-    <div className="flex flex-col space-y-6 w-full max-w-xl mx-auto bg-slate-900/90 backdrop-blur-md border border-slate-800 p-6 rounded-2xl shadow-2xl">
+    <div className="flex flex-col space-y-6 w-full max-w-xl mx-auto bg-emerald-950/90 backdrop-blur-md border border-emerald-800/80 p-6 rounded-2xl shadow-2xl">
       {/* Format Switcher */}
-      <div className="flex bg-slate-950 p-1.5 rounded-xl border border-slate-800">
+      <div className="flex bg-slate-950 p-1.5 rounded-xl border border-emerald-900">
         <button
           onClick={() => setActiveTab('idcard')}
           className={`flex-1 py-2.5 text-xs sm:text-sm font-bold rounded-lg transition ${
             activeTab === 'idcard'
-              ? 'bg-gradient-to-r from-cyan-500 to-emerald-500 text-slate-950 shadow-lg'
-              : 'text-slate-400 hover:text-white'
+              ? 'bg-gradient-to-r from-emerald-500 to-amber-500 text-slate-950 shadow-lg'
+              : 'text-emerald-400/70 hover:text-white'
           }`}
         >
           Format B: Builder ID Pass
@@ -233,8 +221,8 @@ export default function CardCanvas({ userImage }: CardCanvasProps) {
           onClick={() => setActiveTab('frame')}
           className={`flex-1 py-2.5 text-xs sm:text-sm font-bold rounded-lg transition ${
             activeTab === 'frame'
-              ? 'bg-gradient-to-r from-cyan-500 to-emerald-500 text-slate-950 shadow-lg'
-              : 'text-slate-400 hover:text-white'
+              ? 'bg-gradient-to-r from-emerald-500 to-amber-500 text-slate-950 shadow-lg'
+              : 'text-emerald-400/70 hover:text-white'
           }`}
         >
           Format A: PFP Frame
@@ -243,10 +231,10 @@ export default function CardCanvas({ userImage }: CardCanvasProps) {
 
       {/* Customization Options */}
       {activeTab === 'idcard' && (
-        <div className="space-y-4 bg-slate-950 p-5 rounded-xl border border-slate-800/80 text-left">
+        <div className="space-y-4 bg-slate-950 p-5 rounded-xl border border-emerald-900/80 text-left">
           {/* Theme Selector */}
           <div>
-            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+            <label className="text-xs font-semibold text-emerald-400 uppercase tracking-wider">
               1. Choose Visual Theme
             </label>
             <div className="grid grid-cols-2 gap-2 mt-2">
@@ -256,8 +244,8 @@ export default function CardCanvas({ userImage }: CardCanvasProps) {
                   onClick={() => setSelectedTheme(theme)}
                   className={`flex items-center justify-between p-2.5 rounded-lg border text-xs font-medium transition ${
                     selectedTheme.id === theme.id
-                      ? 'border-cyan-400 bg-slate-900 text-white'
-                      : 'border-slate-800 bg-slate-900/50 text-slate-400 hover:text-slate-200'
+                      ? 'border-amber-400 bg-emerald-950 text-white'
+                      : 'border-emerald-900 bg-emerald-950/40 text-emerald-300/70 hover:text-emerald-100'
                   }`}
                 >
                   <div className="flex items-center space-x-2">
@@ -267,7 +255,7 @@ export default function CardCanvas({ userImage }: CardCanvasProps) {
                     />
                     <span>{theme.name}</span>
                   </div>
-                  {selectedTheme.id === theme.id && <span className="text-cyan-400 font-bold">✓</span>}
+                  {selectedTheme.id === theme.id && <span className="text-amber-400 font-bold">✓</span>}
                 </button>
               ))}
             </div>
@@ -276,21 +264,21 @@ export default function CardCanvas({ userImage }: CardCanvasProps) {
           {/* Builder Profile Info */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
             <div>
-              <label className="text-xs font-semibold text-slate-400">Full Name</label>
+              <label className="text-xs font-semibold text-emerald-400">Full Name</label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full mt-1 bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500"
+                className="w-full mt-1 bg-emerald-950/80 border border-emerald-900 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-400"
               />
             </div>
             <div>
-              <label className="text-xs font-semibold text-slate-400">Twitter / X Handle</label>
+              <label className="text-xs font-semibold text-emerald-400">Twitter / X Handle</label>
               <input
                 type="text"
                 value={handle}
                 onChange={(e) => setHandle(e.target.value)}
-                className="w-full mt-1 bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500"
+                className="w-full mt-1 bg-emerald-950/80 border border-emerald-900 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-400"
               />
             </div>
           </div>
@@ -298,10 +286,10 @@ export default function CardCanvas({ userImage }: CardCanvasProps) {
           {/* Builder Title Randomizer */}
           <div>
             <div className="flex justify-between items-center">
-              <label className="text-xs font-semibold text-slate-400">Builder Title</label>
+              <label className="text-xs font-semibold text-emerald-400">Builder Title</label>
               <button
                 onClick={randomizeTitle}
-                className="text-xs text-cyan-400 flex items-center space-x-1 hover:underline font-medium"
+                className="text-xs text-amber-400 flex items-center space-x-1 hover:underline font-medium"
               >
                 <span>✨ Randomize Title</span>
               </button>
@@ -310,13 +298,13 @@ export default function CardCanvas({ userImage }: CardCanvasProps) {
               type="text"
               value={builderTitle}
               onChange={(e) => setBuilderTitle(e.target.value)}
-              className="w-full mt-1 bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500"
+              className="w-full mt-1 bg-emerald-950/80 border border-emerald-900 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-400"
             />
           </div>
 
           {/* Tech Stack Selectors */}
           <div>
-            <label className="text-xs font-semibold text-slate-400">
+            <label className="text-xs font-semibold text-emerald-400">
               Primary Tech Stack (Select up to 3)
             </label>
             <div className="flex flex-wrap gap-1.5 mt-2">
@@ -328,8 +316,8 @@ export default function CardCanvas({ userImage }: CardCanvasProps) {
                     onClick={() => toggleStack(stack)}
                     className={`px-3 py-1 rounded-full text-xs font-medium transition ${
                       active
-                        ? 'bg-cyan-500 text-slate-950 font-bold'
-                        : 'bg-slate-900 text-slate-400 border border-slate-800 hover:text-white'
+                        ? 'bg-amber-400 text-slate-950 font-bold'
+                        : 'bg-emerald-950/80 text-emerald-300 border border-emerald-900 hover:text-white'
                     }`}
                   >
                     {stack}
@@ -342,7 +330,7 @@ export default function CardCanvas({ userImage }: CardCanvasProps) {
       )}
 
       {/* Canvas Live Preview */}
-      <div className="w-full max-w-sm mx-auto rounded-2xl overflow-hidden border border-slate-700/80 shadow-2xl">
+      <div className="w-full max-w-sm mx-auto rounded-2xl overflow-hidden border border-amber-500/40 shadow-2xl">
         <canvas ref={canvasRef} className="w-full h-auto block" />
       </div>
 
@@ -356,7 +344,7 @@ export default function CardCanvas({ userImage }: CardCanvasProps) {
         </button>
         <button
           onClick={handleShareToX}
-          className="flex-1 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 hover:opacity-90 text-slate-950 font-bold text-sm transition shadow-lg"
+          className="flex-1 py-3 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:opacity-90 text-slate-950 font-bold text-sm transition shadow-lg"
         >
           🚀 Share to X
         </button>

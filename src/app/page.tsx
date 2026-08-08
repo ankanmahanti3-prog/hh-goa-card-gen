@@ -21,19 +21,19 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center justify-start p-4 sm:p-8">
+    <main className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-950 via-green-950 to-slate-950 text-slate-100 flex flex-col items-center justify-start p-4 sm:p-8">
       {/* Studio Banner */}
       <div className="max-w-3xl text-center space-y-3 my-6">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-950/80 border border-cyan-500/30 text-cyan-400 text-xs font-bold tracking-widest uppercase shadow-md">
-          <span>⚡ Hacker House Goa 2026 Studio</span>
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-900/80 border border-amber-400/40 text-amber-300 text-xs font-bold tracking-widest uppercase shadow-lg">
+          <span>🌴 Hacker House Goa 2026 Studio</span>
         </div>
 
-        {/* Clean, high-visibility solid heading */}
-        <h1 className="text-3xl sm:text-5xl font-black tracking-wider text-cyan-400 drop-shadow-[0_0_20px_rgba(34,211,238,0.3)]">
+        {/* Goa Style Heading */}
+        <h1 className="text-3xl sm:text-5xl font-black tracking-wider text-amber-400 drop-shadow-[0_0_20px_rgba(251,191,36,0.3)]">
           BUILDER PASS GENERATOR
         </h1>
 
-        <p className="text-sm sm:text-base text-slate-400 font-medium">
+        <p className="text-sm sm:text-base text-emerald-200/80 font-medium">
           Personalize & generate your official builder pass or PFP frame for Hacker House Goa 2026.
         </p>
       </div>
@@ -43,8 +43,8 @@ export default function Home() {
         {/* Left Column: Photo Upload / Crop Flow */}
         <div className="space-y-4">
           {!selectedImage && (
-            <div className="bg-slate-900/90 border border-slate-800 p-5 rounded-2xl shadow-xl text-left">
-              <h2 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
+            <div className="bg-emerald-950/80 border border-emerald-800/80 p-5 rounded-2xl shadow-xl text-left">
+              <h2 className="text-xs font-bold text-amber-400 uppercase tracking-wider mb-3">
                 1. Upload Builder Photo
               </h2>
               <ImageUploader onImageSelected={handleImageSelected} />
@@ -52,8 +52,8 @@ export default function Home() {
           )}
 
           {selectedImage && !croppedImage && (
-            <div className="bg-slate-900/90 border border-slate-800 p-5 rounded-2xl shadow-xl text-left">
-              <h2 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
+            <div className="bg-emerald-950/80 border border-emerald-800/80 p-5 rounded-2xl shadow-xl text-left">
+              <h2 className="text-xs font-bold text-amber-400 uppercase tracking-wider mb-3">
                 2. Adjust & Crop Photo
               </h2>
               <ImageCropper
@@ -71,7 +71,7 @@ export default function Home() {
           {croppedImage && (
             <button
               onClick={handleReset}
-              className="w-full py-2.5 text-xs font-medium text-slate-400 hover:text-white bg-slate-900/80 border border-slate-800 rounded-xl transition"
+              className="w-full py-2.5 text-xs font-medium text-emerald-300 hover:text-white bg-emerald-950/80 border border-emerald-800 rounded-xl transition"
             >
               ← Change / Re-upload Photo
             </button>
