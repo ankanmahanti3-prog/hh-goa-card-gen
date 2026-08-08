@@ -10,18 +10,22 @@ export default function Home() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [croppedImage, setCroppedImage] = useState<string | null>(null);
   const [verifyData, setVerifyData] = useState<{ id: string; name: string; role: string } | null>(null);
-  const [currentTime, setCurrentTime] = useState<string>('');
+  const [currentTimeDigits, setCurrentTimeDigits] = useState<string>('');
+  const [currentAmpm, setCurrentAmpm] = useState<string>('PM');
 
-  // Live Real-Time Clock Engine
+  // Live Clock Engine separating Digits and AM/PM
   useEffect(() => {
     const updateClock = () => {
       const now = new Date();
-      const formatted = now.toLocaleTimeString('en-US', {
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true,
-      });
-      setCurrentTime(formatted);
+      let hours = now.getHours();
+      const minutes = now.getMinutes().toString().padStart(2, '0');
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      
+      hours = hours % 12;
+      hours = hours ? hours : 12; // '0' becomes '12'
+
+      setCurrentTimeDigits(`${hours}:${minutes}`);
+      setCurrentAmpm(ampm);
     };
 
     updateClock();
@@ -154,20 +158,30 @@ export default function Home() {
 
           {/* Right Header Badges */}
           <div className="flex items-center gap-4">
-            {/* Tilted Sticker Style Live Clock */}
-            <div className="hidden sm:flex flex-col items-center justify-center bg-black/80 px-3.5 py-1 rounded-lg border border-[#FFD52E]/40 transform -rotate-3 shadow-[3px_3px_0px_rgba(0,0,0,0.8)] leading-none">
-              <span 
-                style={{ fontFamily: "'Caveat Brush', cursive" }} 
-                className="text-2xl text-[#FFD52E] tracking-wide drop-shadow-[1px_1px_0px_rgba(0,0,0,0.8)]"
+            
+            {/* Hybrid Mask & Overlay Clock Badge */}
+            <div className="relative hidden sm:block w-[110px] h-[55px] select-none">
+              {/* Original Official Vector Graphic Base */}
+              <img 
+                src="/studio-time-stamp.png" 
+                alt="Studio Time" 
+                className="w-full h-full object-contain pointer-events-none" 
+              />
+
+              {/* Black Patch Mask Covering the Static '2:47' */}
+              <div className="absolute top-[2%] left-[0%] w-[68%] h-[52%] bg-black z-10" />
+
+              {/* Live Ticking Time Overlay */}
+              <div 
+                className="absolute top-[-4%] left-[0%] w-[68%] h-[52%] z-20 flex items-center justify-center"
               >
-                {currentTime || '10:35 PM'}
-              </span>
-              <span 
-                style={{ fontFamily: "'Caveat Brush', cursive" }}
-                className="text-[11px] text-[#FFD52E] tracking-widest uppercase -mt-0.5 drop-shadow-[1px_1px_0px_rgba(0,0,0,0.8)]"
-              >
-                STUDIO TIME
-              </span>
+                <span 
+                  style={{ fontFamily: "'Caveat Brush', cursive" }}
+                  className="text-[#FFD52E] text-[26px] font-bold leading-none tracking-tight"
+                >
+                  {currentTimeDigits || '10:42'}
+                </span>
+              </div>
             </div>
 
             <div className="flex items-center gap-3 text-xs font-bold text-amber-300 bg-emerald-950/90 px-4 py-2.5 rounded-xl border border-emerald-800/80 shadow-lg">
