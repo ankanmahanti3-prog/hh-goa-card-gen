@@ -17,7 +17,7 @@ interface Area {
 
 interface ImageCropperProps {
   imageSrc: string;
-  onCropComplete: (objectUrl: string) => void;
+  onCropComplete: (croppedUrl: string) => void;
   onCancel: () => void;
 }
 
@@ -73,11 +73,11 @@ export default function ImageCropper({ imageSrc, onCropComplete, onCancel }: Ima
               onCropComplete(imageSrc);
               return;
             }
-            const objectUrl = URL.createObjectURL(blob);
-            onCropComplete(objectUrl);
+            const croppedUrl = URL.createObjectURL(blob);
+            onCropComplete(croppedUrl);
           },
           'image/jpeg',
-          0.88
+          0.9
         );
       };
 
