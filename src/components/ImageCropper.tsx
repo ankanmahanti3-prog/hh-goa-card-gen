@@ -52,8 +52,7 @@ export default function ImageCropper({ imageSrc, onCropComplete, onCancel }: Ima
       const ctx = canvas.getContext('2d');
       if (!ctx) throw new Error('Could not get canvas context');
 
-      // Cap maximum crop resolution to 720x720 to preserve memory
-      const maxOutputDim = 720;
+      const maxOutputDim = Math.min(720, Math.max(croppedAreaPixels.width, croppedAreaPixels.height));
       canvas.width = maxOutputDim;
       canvas.height = maxOutputDim;
 
@@ -69,19 +68,8 @@ export default function ImageCropper({ imageSrc, onCropComplete, onCancel }: Ima
         maxOutputDim
       );
 
-      const blob = await new Promise<Blob>((resolve, reject) => {
-        canvas.toBlob(
-          (result) => {
-            if (result) resolve(result);
-            else reject(new Error('Crop failed'));
-          },
-          'image/jpeg',
-          0.88
-        );
-      });
-
-      const croppedUrl = URL.createObjectURL(blob);
-      onCropComplete(croppedUrl);
+      const croppedDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+      onCropComplete(croppedDataUrl);
     } catch (err) {
       console.error('Error cropping image:', err);
       onCropComplete(imageSrc);

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState } from 'react';
 
 interface ImageUploaderProps {
   onImageSelected: (src: string) => void;
@@ -8,18 +8,9 @@ interface ImageUploaderProps {
 
 export default function ImageUploader({ onImageSelected }: ImageUploaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const previousUrlRef = useRef<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [statusText, setStatusText] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-
-  useEffect(() => {
-    return () => {
-      if (previousUrlRef.current) {
-        URL.revokeObjectURL(previousUrlRef.current);
-      }
-    };
-  }, []);
 
   const processFile = async (file: File) => {
     const fileName = file.name.toLowerCase();
@@ -31,7 +22,7 @@ export default function ImageUploader({ onImageSelected }: ImageUploaderProps) {
 
     try {
       setIsProcessing(true);
-      let selectedSrc: string;
+      let targetFile: Blob = file;
 
       if (isHeic) {
         setStatusText('Converting iPhone HEIC Photo...');
@@ -41,24 +32,24 @@ export default function ImageUploader({ onImageSelected }: ImageUploaderProps) {
           toType: 'image/jpeg',
           quality: 0.8,
         });
-        const singleBlob = Array.isArray(converted) ? converted[0] : converted;
-        selectedSrc = URL.createObjectURL(singleBlob);
+        targetFile = Array.isArray(converted) ? converted[0] : converted;
       } else {
-        setStatusText('✓ Photo Ready');
-        // Instant Object URL generation for JPG, PNG, WEBP (no FileReader / canvas overhead)
-        selectedSrc = URL.createObjectURL(file);
+        setStatusText('Processing Photo...');
       }
 
-      if (previousUrlRef.current) {
-        URL.revokeObjectURL(previousUrlRef.current);
-      }
-      previousUrlRef.current = selectedSrc;
-
-      onImageSelected(selectedSrc);
+      // Convert to persistent Data URL (immune to unmount revocation)
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const dataUrl = e.target?.result as string;
+        if (dataUrl) {
+          onImageSelected(dataUrl);
+        }
+      };
+      reader.readAsDataURL(targetFile);
     } catch (err) {
-      console.error(err);
+      console.error('File reading error:', err);
       alert('Could not parse image file. Please upload a valid JPG, PNG, or HEIC photo.');
-    } finally {
+    } font-bold {
       setIsProcessing(false);
       setStatusText(null);
     }
