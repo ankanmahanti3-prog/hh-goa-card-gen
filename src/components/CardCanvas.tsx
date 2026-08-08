@@ -1,32 +1,48 @@
 'use client';
 
 import React, { useRef, useEffect, useState } from 'react';
-import { Download, Share2, Sparkles } from 'lucide-react';
+import { Download, Share2, Sparkles, Code, Check } from 'lucide-react';
 
 interface CardCanvasProps {
   userImage: string;
 }
 
+const THEMES = [
+  { id: 'cyberpunk', name: 'Sunset Cyberpunk', primary: '#06b6d4', secondary: '#f43f5e', bg: '#090d16' },
+  { id: 'emerald', name: 'Emerald Palms', primary: '#10b981', secondary: '#3b82f6', bg: '#061412' },
+  { id: 'matrix', name: 'Neon Matrix', primary: '#22c55e', secondary: '#a855f7', bg: '#020d08' },
+  { id: 'goa', name: 'Goa Golden Hour', primary: '#eab308', secondary: '#f97316', bg: '#120a05' },
+];
+
+const STACK_OPTIONS = ['Full-Stack', 'AI / ML', 'Web3 / Solana', 'Rust', 'UI / UX', 'DevOps'];
+
+const FUN_TITLES = [
+  'Susegad Vibe Compiler',
+  'Async Architect',
+  'Terminal Wizard',
+  'Neural Alchemist',
+  'Code Craftsman',
+  'Goa Hacker',
+];
+
 export default function CardCanvas({ userImage }: CardCanvasProps) {
-  const [activeTab, setActiveTab] = useState<'frame' | 'idcard'>('frame');
+  const [activeTab, setActiveTab] = useState<'frame' | 'idcard'>('idcard');
+  const [selectedTheme, setSelectedTheme] = useState(THEMES[0]);
   const [name, setName] = useState('Ankan Mahanti');
-  const [role, setRole] = useState('Full Stack Builder');
-  const [builderTitle, setBuilderTitle] = useState('Byte Alchemist');
-  
+  const [handle, setHandle] = useState('@ankanmahanti');
+  const [selectedStacks, setSelectedStacks] = useState<string[]>(['Full-Stack', 'AI / ML']);
+  const [builderTitle, setBuilderTitle] = useState('Susegad Vibe Compiler');
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Random fun titles generator for Format B
-  const funTitles = [
-    'Byte Alchemist',
-    'Neural Architect',
-    'Full-Stack Artisan',
-    'Goa Hacker',
-    'Code Craftsman',
-    'Async Wizard',
-  ];
+  const toggleStack = (stack: string) => {
+    setSelectedStacks((prev) =>
+      prev.includes(stack) ? prev.filter((s) => s !== stack) : [...prev, stack].slice(0, 3)
+    );
+  };
 
-  const generateRandomTitle = () => {
-    const random = funTitles[Math.floor(Math.random() * funTitles.length)];
+  const randomizeTitle = () => {
+    const random = FUN_TITLES[Math.floor(Math.random() * FUN_TITLES.length)];
     setBuilderTitle(random);
   };
 
@@ -46,183 +62,233 @@ export default function CardCanvas({ userImage }: CardCanvasProps) {
         canvas.width = 1080;
         canvas.height = 1080;
 
-        // Draw User Photo
+        // User Image
         ctx.drawImage(img, 0, 0, 1080, 1080);
 
-        // Cyberpunk / Goa Dark Gradient Border Overlay
+        // Gradient Frame Overlay
         const gradient = ctx.createLinearGradient(0, 0, 1080, 1080);
-        gradient.addColorStop(0, '#06b6d4'); // Cyan
-        gradient.addColorStop(0.5, '#10b981'); // Emerald
-        gradient.addColorStop(1, '#3b82f6'); // Blue
+        gradient.addColorStop(0, selectedTheme.primary);
+        gradient.addColorStop(1, selectedTheme.secondary);
 
         ctx.strokeStyle = gradient;
-        ctx.lineWidth = 40;
-        ctx.strokeRect(20, 20, 1040, 1040);
+        ctx.lineWidth = 36;
+        ctx.strokeRect(18, 18, 1044, 1044);
 
-        // Dark Bottom Banner for Branding
-        ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
-        ctx.fillRect(0, 920, 1080, 160);
+        // Bottom Banner Overlay
+        ctx.fillStyle = 'rgba(9, 13, 22, 0.88)';
+        ctx.fillRect(0, 880, 1080, 200);
 
-        // HH GOA 2026 Text Branding
         ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 52px Inter, sans-serif';
+        ctx.font = 'bold 56px Inter, sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText('HH GOA 2026', 540, 985);
+        ctx.fillText('HACKER HOUSE GOA 2026', 540, 950);
 
-        ctx.fillStyle = '#22d3ee';
-        ctx.font = '500 28px Inter, sans-serif';
-        ctx.fillText('BUILDER EDITION • #FrameInGoa', 540, 1030);
+        ctx.fillStyle = selectedTheme.primary;
+        ctx.font = '600 30px Inter, sans-serif';
+        ctx.fillText('#FrameInGoa • BUILDER EDITION', 540, 1000);
 
       } else {
         // --- FORMAT B: BUILDER ID CARD (1080x1350) ---
         canvas.width = 1080;
         canvas.height = 1350;
 
-        // Background - Dark Cyberpunk Card
-        ctx.fillStyle = '#090d16';
+        // Background
+        ctx.fillStyle = selectedTheme.bg;
         ctx.fillRect(0, 0, 1080, 1350);
 
-        // Neon Glow Card Border
+        // Neon Glow Border
         const gradient = ctx.createLinearGradient(0, 0, 1080, 1350);
-        gradient.addColorStop(0, '#06b6d4');
-        gradient.addColorStop(1, '#10b981');
+        gradient.addColorStop(0, selectedTheme.primary);
+        gradient.addColorStop(1, selectedTheme.secondary);
         ctx.strokeStyle = gradient;
-        ctx.lineWidth = 16;
-        ctx.strokeRect(30, 30, 1020, 1290);
+        ctx.lineWidth = 14;
+        ctx.strokeRect(24, 24, 1032, 1302);
 
-        // Header Text
-        ctx.fillStyle = '#22d3ee';
-        ctx.font = 'bold 36px Inter, sans-serif';
+        // Header Title
+        ctx.fillStyle = selectedTheme.primary;
+        ctx.font = 'bold 42px Inter, sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText('HACKER HOUSE GOA 2026', 540, 110);
+        ctx.fillText('HACKER HOUSE GOA 2026', 540, 100);
 
         ctx.fillStyle = '#94a3b8';
-        ctx.font = '24px Inter, sans-serif';
-        ctx.fillText('OFFICIAL BUILDER PASS', 540, 150);
+        ctx.font = '500 24px Inter, sans-serif';
+        ctx.fillText('OFFICIAL BUILDER PASS • 28 - 31 OCT 2026', 540, 140);
 
-        // Photo Container Frame
-        const photoSize = 500;
+        // Photo Frame
+        const photoSize = 480;
         const photoX = (1080 - photoSize) / 2;
-        const photoY = 200;
+        const photoY = 180;
 
         ctx.save();
         ctx.beginPath();
-        ctx.roundRect(photoX, photoY, photoSize, photoSize, 30);
+        ctx.roundRect(photoX, photoY, photoSize, photoSize, 24);
         ctx.clip();
         ctx.drawImage(img, photoX, photoY, photoSize, photoSize);
         ctx.restore();
 
-        // Photo Outline
-        ctx.strokeStyle = '#22d3ee';
-        ctx.lineWidth = 8;
+        // Photo Border
+        ctx.strokeStyle = selectedTheme.primary;
+        ctx.lineWidth = 6;
         ctx.beginPath();
-        ctx.roundRect(photoX, photoY, photoSize, photoSize, 30);
+        ctx.roundRect(photoX, photoY, photoSize, photoSize, 24);
         ctx.stroke();
 
-        // User Details
+        // Builder Name & Handle
         ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 56px Inter, sans-serif';
-        ctx.fillText(name || 'Anonymous Builder', 540, 790);
+        ctx.font = 'bold 54px Inter, sans-serif';
+        ctx.fillText(name || 'Anonymous Builder', 540, 740);
 
-        ctx.fillStyle = '#10b981';
-        ctx.font = '600 32px Inter, sans-serif';
-        ctx.fillText(role || 'Developer', 540, 840);
+        ctx.fillStyle = selectedTheme.primary;
+        ctx.font = '500 28px Inter, sans-serif';
+        ctx.fillText(handle || '@builder', 540, 785);
 
-        // Builder Badge Box
-        ctx.fillStyle = '#1e293b';
+        // Fun Title Badge Box
+        ctx.fillStyle = 'rgba(30, 41, 59, 0.8)';
         ctx.beginPath();
-        ctx.roundRect(190, 890, 700, 100, 20);
+        ctx.roundRect(140, 825, 800, 80, 16);
         ctx.fill();
-        ctx.strokeStyle = '#334155';
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
         ctx.lineWidth = 2;
         ctx.stroke();
 
         ctx.fillStyle = '#f8fafc';
-        ctx.font = 'bold 34px Inter, sans-serif';
-        ctx.fillText(`⚡ ${builderTitle}`, 540, 952);
+        ctx.font = 'bold 30px Inter, sans-serif';
+        ctx.fillText(`⚡ ${builderTitle}`, 540, 875);
 
-        // Footer Branding
+        // Tech Stack Badges
+        if (selectedStacks.length > 0) {
+          const totalWidth = selectedStacks.length * 200;
+          let startX = (1080 - totalWidth) / 2 + 100;
+
+          selectedStacks.forEach((stack) => {
+            ctx.fillStyle = selectedTheme.primary;
+            ctx.beginPath();
+            ctx.roundRect(startX - 90, 940, 180, 48, 12);
+            ctx.fill();
+
+            ctx.fillStyle = '#090d16';
+            ctx.font = 'bold 20px Inter, sans-serif';
+            ctx.fillText(stack, startX, 971);
+
+            startX += 200;
+          });
+        }
+
+        // Footer Metadata & Hashtags
         ctx.fillStyle = '#64748b';
-        ctx.font = '24px Inter, sans-serif';
-        ctx.fillText('#FrameInGoa • HH GOA 2026', 540, 1220);
+        ctx.font = '22px Inter, sans-serif';
+        ctx.fillText('BUILDER ID: #2026-GOA-HKR', 540, 1220);
+        ctx.fillText('#FrameInGoa • LESS NOISE. MORE SIGNAL.', 540, 1260);
       }
     };
-  }, [userImage, activeTab, name, role, builderTitle]);
+  }, [userImage, activeTab, selectedTheme, name, handle, selectedStacks, builderTitle]);
 
-  // Download Handler
   const handleDownload = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const image = canvas.toDataURL('image/png');
     const link = document.createElement('a');
     link.href = image;
-    link.download = `HH_Goa_2026_${activeTab === 'frame' ? 'PFP' : 'IDCard'}.png`;
+    link.download = `HH_Goa_2026_${activeTab === 'frame' ? 'PFP' : 'Pass'}.png`;
     link.click();
   };
 
-  // Share to X (Twitter) Handler
   const handleShareToX = () => {
     const text = encodeURIComponent(
-      `I'm ready for HH Goa 2026! 🚀 Check out my Builder Pass.\n\n#FrameInGoa @HackerHouseGoa`
+      `Just generated my official Builder Pass for Hacker House Goa 2026! 🚀\n\nSee you in Goa! #FrameInGoa @HackerHouseGoa`
     );
     window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank');
   };
 
   return (
-    <div className="flex flex-col items-center space-y-6 w-full max-w-xl mx-auto bg-slate-900 border border-slate-800 p-6 rounded-xl">
-      {/* Tab Selector */}
-      <div className="flex bg-slate-950 p-1.5 rounded-lg border border-slate-800 w-full">
+    <div className="flex flex-col space-y-6 w-full max-w-xl mx-auto bg-slate-900/90 backdrop-blur-md border border-slate-800 p-6 rounded-2xl shadow-2xl">
+      {/* Format Switcher */}
+      <div className="flex bg-slate-950 p-1.5 rounded-xl border border-slate-800">
+        <button
+          onClick={() => setActiveTab('idcard')}
+          className={`flex-1 py-2.5 text-xs sm:text-sm font-bold rounded-lg transition ${
+            activeTab === 'idcard'
+              ? 'bg-gradient-to-r from-cyan-500 to-emerald-500 text-slate-950 shadow-lg'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          Format B: Builder ID Pass
+        </button>
         <button
           onClick={() => setActiveTab('frame')}
-          className={`flex-1 py-2 text-sm font-semibold rounded-md transition ${
+          className={`flex-1 py-2.5 text-xs sm:text-sm font-bold rounded-lg transition ${
             activeTab === 'frame'
-              ? 'bg-cyan-500 text-slate-950 shadow'
+              ? 'bg-gradient-to-r from-cyan-500 to-emerald-500 text-slate-950 shadow-lg'
               : 'text-slate-400 hover:text-white'
           }`}
         >
           Format A: PFP Frame
         </button>
-        <button
-          onClick={() => setActiveTab('idcard')}
-          className={`flex-1 py-2 text-sm font-semibold rounded-md transition ${
-            activeTab === 'idcard'
-              ? 'bg-cyan-500 text-slate-950 shadow'
-              : 'text-slate-400 hover:text-white'
-          }`}
-        >
-          Format B: Builder ID Card
-        </button>
       </div>
 
-      {/* ID Card Customizable Fields (Format B Only) */}
+      {/* Customization Options */}
       {activeTab === 'idcard' && (
-        <div className="w-full space-y-3 bg-slate-950 p-4 rounded-lg border border-slate-800 text-left">
+        <div className="space-y-4 bg-slate-950 p-5 rounded-xl border border-slate-800/80 text-left">
+          {/* Theme Selector */}
           <div>
-            <label className="text-xs font-medium text-slate-400">Name</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500"
-            />
+            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              1. Choose Visual Theme
+            </label>
+            <div className="grid grid-cols-2 gap-2 mt-2">
+              {THEMES.map((theme) => (
+                <button
+                  key={theme.id}
+                  onClick={() => setSelectedTheme(theme)}
+                  className={`flex items-center justify-between p-2.5 rounded-lg border text-xs font-medium transition ${
+                    selectedTheme.id === theme.id
+                      ? 'border-cyan-400 bg-slate-900 text-white'
+                      : 'border-slate-800 bg-slate-900/50 text-slate-400 hover:text-slate-200'
+                  }`}
+                >
+                  <div className="flex items-center space-x-2">
+                    <span
+                      className="w-3 h-3 rounded-full"
+                      style={{ backgroundColor: theme.primary }}
+                    />
+                    <span>{theme.name}</span>
+                  </div>
+                  {selectedTheme.id === theme.id && <Check className="w-3.5 h-3.5 text-cyan-400" />}
+                </button>
+              ))}
+            </div>
           </div>
-          <div>
-            <label className="text-xs font-medium text-slate-400">Role / Tech Stack</label>
-            <input
-              type="text"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500"
-            />
+
+          {/* Builder Profile Info */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+            <div>
+              <label className="text-xs font-semibold text-slate-400">Full Name</label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full mt-1 bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-slate-400">Twitter / X Handle</label>
+              <input
+                type="text"
+                value={handle}
+                onChange={(e) => setHandle(e.target.value)}
+                className="w-full mt-1 bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500"
+              />
+            </div>
           </div>
+
+          {/* Builder Title Randomizer */}
           <div>
-            <div className="flex justify-between items-center mb-1">
-              <label className="text-xs font-medium text-slate-400">Builder Title</label>
+            <div className="flex justify-between items-center">
+              <label className="text-xs font-semibold text-slate-400">Builder Title</label>
               <button
-                onClick={generateRandomTitle}
+                onClick={randomizeTitle}
                 className="text-xs text-cyan-400 flex items-center space-x-1 hover:underline"
               >
-                <Sparkles className="w-3 h-3" />
+                <Sparkles className="w-3.5 h-3.5" />
                 <span>Randomize Title</span>
               </button>
             </div>
@@ -230,29 +296,54 @@ export default function CardCanvas({ userImage }: CardCanvasProps) {
               type="text"
               value={builderTitle}
               onChange={(e) => setBuilderTitle(e.target.value)}
-              className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500"
+              className="w-full mt-1 bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500"
             />
+          </div>
+
+          {/* Tech Stack Selectors */}
+          <div>
+            <label className="text-xs font-semibold text-slate-400">
+              Primary Tech Stack (Select up to 3)
+            </label>
+            <div className="flex flex-wrap gap-1.5 mt-2">
+              {STACK_OPTIONS.map((stack) => {
+                const active = selectedStacks.includes(stack);
+                return (
+                  <button
+                    key={stack}
+                    onClick={() => toggleStack(stack)}
+                    className={`px-3 py-1 rounded-full text-xs font-medium transition ${
+                      active
+                        ? 'bg-cyan-500 text-slate-950 font-bold'
+                        : 'bg-slate-900 text-slate-400 border border-slate-800 hover:text-white'
+                    }`}
+                  >
+                    {stack}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
       )}
 
       {/* Canvas Live Preview */}
-      <div className="w-full max-w-sm rounded-xl overflow-hidden border border-slate-700 shadow-2xl">
+      <div className="w-full max-w-sm mx-auto rounded-2xl overflow-hidden border border-slate-700/80 shadow-2xl">
         <canvas ref={canvasRef} className="w-full h-auto block" />
       </div>
 
-      {/* Download and Share Buttons */}
-      <div className="flex w-full space-x-3 pt-2">
+      {/* Export Actions */}
+      <div className="flex w-full space-x-3">
         <button
           onClick={handleDownload}
-          className="flex-1 flex items-center justify-center space-x-2 py-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-sm transition"
+          className="flex-1 flex items-center justify-center space-x-2 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:opacity-90 text-slate-950 font-bold text-sm transition shadow-lg"
         >
           <Download className="w-4 h-4" />
-          <span>Download PNG</span>
+          <span>Download Pass</span>
         </button>
         <button
           onClick={handleShareToX}
-          className="flex-1 flex items-center justify-center space-x-2 py-3 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-sm transition"
+          className="flex-1 flex items-center justify-center space-x-2 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 hover:opacity-90 text-slate-950 font-bold text-sm transition shadow-lg"
         >
           <Share2 className="w-4 h-4" />
           <span>Share to X</span>
